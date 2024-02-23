@@ -12,90 +12,132 @@ model Users {
   email     String   @map("email")
   password  String   @map("password")
   name      String   @map("name")
-  point     Int?     @map("point")
   address   String   @map("address")
-  grade     Grade    @map("grade")
+  role      Role     @map("role")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @map("updatedAt")
 
   Stores  Stores?
   Orders  Orders[]
   Reviews Reviews[]
+  Points  Points[]
 
   @@map("Users")
 }
 
-enum Grade {
+enum Role {
   user
+  owner
   admin
 }
 
+model Points {
+  pointId Int      @id @default(autoincrement()) @map("pointId")
+  userId  Int      @map("userId")
+  howMuch Int      @map("howMuch")
+  when    DateTime @map("when")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
+
+  @@map("Points")
+}
+
 model Stores {
-  storeId   Int      @id @default(autoincrement()) @map("storeid")
-  userId    Int      @unique @map("userId")
-  name      String   @map("name")
-  address   String   @map("address")
-  category  Category @map("category")
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @map("updatedAt")
+  storeId   Int         @id @default(autoincrement()) @map("storeid")
+  userId    Int         @unique @map("userId")
+  name      String      @map("name")
+  address   String      @map("address")
+  category  Category    @map("category")
+  status    StoreStatus @map("status")
+  createdAt DateTime    @default(now()) @map("createdAt")
+  updatedAt DateTime    @map("updatedAt")
 
   user    Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   Menus   Menus[]
   Orders  Orders[]
   Reviews Reviews[]
 
-  @@map("Store")
+  @@map("Stores")
+}
+
+enum StoreStatus {
+  opened
+  closed
 }
 
 model Menus {
-  menuId    Int      @id @default(autoincrement()) @map("menuId")
-  storeId   Int      @map("storeId")
-  name      String   @map("name")
-  price     Int      @map("price")
-  image     String?  @map("image")
-  category  Category @map("category")
-  createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @map("updatedAt")
+  menuId    Int        @id @default(autoincrement()) @map("menuId")
+  storeId   Int        @map("storeId")
+  name      String     @map("name")
+  price     Int        @map("price")
+  image     String?    @map("image")
+  stock     Int        @map("stock")
+  category  Category   @map("category")
+  status    MenuStatus @map("status")
+  createdAt DateTime   @default(now()) @map("createdAt")
+  updatedAt DateTime   @map("updatedAt")
 
   store Stores @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
 
-  @@map("Menu")
+  @@map("Menus")
+}
+
+enum MenuStatus {
+  in_stock
+  sold_out
 }
 
 enum Category {
-  fastfood
-  dessert
+  chicken
+  pizza
+  burger
+  salad
+  korean_food
+  japanese_food
+  chinese_food
+  snack_bar
+  cafe
   etc
 }
 
 model Orders {
-  orderId    Int      @id @default(autoincrement()) @map("orderId")
-  userId     Int      @map("userId")
-  menuId     Int      @map("menuId")
-  storeId    Int      @map("storeId")
-  request    String?  @map("request")
-  totalPrice Int      @map("totalPrice")
-  status     Status   @map("status")
-  createdAt  DateTime @default(now()) @map("createdAt")
-  updatedAt  DateTime @map("updatedAt")
+  orderId    Int         @id @default(autoincrement()) @map("orderId")
+  userId     Int?        @map("userId")
+  storeId    Int?        @map("storeId")
+  request    String?     @map("request")
+  totalPrice Int         @map("totalPrice")
+  status     OrderStatus @map("status")
+  createdAt  DateTime    @default(now()) @map("createdAt")
+  updatedAt  DateTime    @map("updatedAt")
 
-  user    Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
-  store   Stores    @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
-  Reviews Reviews[]
+  user       Users?       @relation(fields: [userId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
+  store      Stores?      @relation(fields: [storeId], references: [storeId], onDelete: SetNull, onUpdate: SetNull)
+  Reviews    Reviews?
+  OrderItems OrderItems[]
 
-  @@map("Order")
+  @@map("Orders")
 }
 
-enum Status {
-  in_progress
+enum OrderStatus {
+  accepted
+  rejected
   complete
+}
+
+model OrderItems {
+  orderItemId Int @id @default(autoincrement()) @map("orderItemId")
+  orderId     Int @map("orderId")
+  menuId      Int @map("menuId")
+  quantity    Int @map("quantity")
+
+  order Orders @relation(fields: [orderId], references: [orderId], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Reviews {
   reviewId  Int      @id @default(autoincrement()) @map("reviewId")
   userId    Int      @map("userId")
   storeId   Int      @map("storeId")
-  orderId   Int      @map("orderid")
+  orderId   Int      @unique @map("orderid")
   rating    Int      @map("rating")
   content   String   @map("content")
   image     String   @map("image")
@@ -106,5 +148,5 @@ model Reviews {
   store Stores @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
   order Orders @relation(fields: [orderId], references: [orderId], onDelete: Cascade, onUpdate: Cascade)
 
-  @@map("Review")
+  @@map("Reviews")
 }
