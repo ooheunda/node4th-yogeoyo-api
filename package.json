@@ -1,7 +1,8 @@
 {
-  "name": "node4th-team-project-turkey",
+  "name": "node4th-yogeoyo-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
+  "repository": "https://github.com/ooheunda/node4th-yogeoyo-api",
   "author": "ooheunda <ooheunda@gmail.com>",
   "license": "MIT",
   "type": "module",
