@@ -6,7 +6,6 @@ import {
   ConflictError,
 } from "../utils/common.error.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/jwtFunc.js";
-
 export class AuthService {
   constructor(usersRepository, pointsRepository) {
     this.usersRepository = usersRepository;
@@ -23,7 +22,10 @@ export class AuthService {
     const isExistUser = await this.usersRepository.getUserByEmail(email);
     if (isExistUser) throw new ConflictError("이미 사용중인 이메일 입니다.");
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(
+      password,
+      +process.env.BCRYPT_SALT
+    );
 
     const newUser = await this.usersRepository.createUser(
       email,
@@ -74,5 +76,5 @@ export class AuthService {
   };
 
   // 로그아웃
-  userSignOut = async () => {};
+  userSignOut = async (refreshToken) => {};
 }
