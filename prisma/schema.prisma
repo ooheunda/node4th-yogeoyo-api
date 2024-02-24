@@ -9,13 +9,13 @@ datasource db {
 
 model Users {
   userId    Int      @id @default(autoincrement()) @map("userId")
-  email     String   @map("email")
+  email     String   @unique @map("email")
   password  String   @map("password")
   name      String   @map("name")
   address   String   @map("address")
   role      Role     @map("role")
   createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @map("updatedAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
   Stores  Stores?
   Orders  Orders[]
@@ -50,7 +50,7 @@ model Stores {
   category  Category    @map("category")
   status    StoreStatus @map("status")
   createdAt DateTime    @default(now()) @map("createdAt")
-  updatedAt DateTime    @map("updatedAt")
+  updatedAt DateTime    @updatedAt @map("updatedAt")
 
   user    Users     @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   Menus   Menus[]
@@ -75,7 +75,7 @@ model Menus {
   category  Category   @map("category")
   status    MenuStatus @map("status")
   createdAt DateTime   @default(now()) @map("createdAt")
-  updatedAt DateTime   @map("updatedAt")
+  updatedAt DateTime   @updatedAt @map("updatedAt")
 
   store Stores @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
 
@@ -108,7 +108,7 @@ model Orders {
   totalPrice Int         @map("totalPrice")
   status     OrderStatus @map("status")
   createdAt  DateTime    @default(now()) @map("createdAt")
-  updatedAt  DateTime    @map("updatedAt")
+  updatedAt  DateTime    @updatedAt @map("updatedAt")
 
   user       Users?       @relation(fields: [userId], references: [userId], onDelete: SetNull, onUpdate: SetNull)
   store      Stores?      @relation(fields: [storeId], references: [storeId], onDelete: SetNull, onUpdate: SetNull)
@@ -142,7 +142,7 @@ model Reviews {
   content   String   @map("content")
   image     String   @map("image")
   createdAt DateTime @default(now()) @map("createdAt")
-  updatedAt DateTime @map("updatedAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
 
   user  Users  @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
   store Stores @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
