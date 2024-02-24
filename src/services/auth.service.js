@@ -1,8 +1,16 @@
 import bcrypt from "bcrypt";
-import { ValidationError, ConflictError } from "../utils/common.error.js";
+import {
+  ValidationError,
+  NotFoundError,
+  UnauthorizedError,
+  ConflictError,
+} from "../utils/common.error.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwtFunc.js";
+
 export class AuthService {
-  constructor(usersRepository) {
+  constructor(usersRepository, pointsRepository) {
     this.usersRepository = usersRepository;
+    this.pointsRepository = pointsRepository;
   }
 
   // 회원가입
@@ -23,6 +31,8 @@ export class AuthService {
       role
     );
 
+    await this.pointsRepository.changePoint(newUser.userId, 1000000);
+
     return {
       userId: newUser.userId,
       name: newUser.name,
@@ -33,11 +43,29 @@ export class AuthService {
   };
 
   // 로그인
-  userSignIn = async () => {};
+  userSignIn = async (email, password) => {
+    const user = await this.usersRepository.getUserByEmail(email);
+    if (!user) throw new NotFoundError("해당하는 유저가 존재하지 않습니다.");
+
+    if (!(await bcrypt.compare(password, user.password)))
+      throw new UnauthorizedError("비밀번호가 올바르지 않습니다.");
+
+    // TODO: point sum
+    // const point = await this.pointsRepository.getSumOfUserPoints(user.userId);
+
+    const accessToken = generateAccessToken(user.userId);
+    const refreshToken = generateRefreshToken(user.userId);
+
+    return [
+      {
+        userId: user.userId,
+        name: user.name,
+        address: user.address,
+      },
+      { accessToken, refreshToken },
+    ];
+  };
 
   // 로그아웃
   userSignOut = async () => {};
-
-  // 회원탈퇴
-  userLeave = async () => {};
 }

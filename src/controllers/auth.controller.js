@@ -33,14 +33,30 @@ export class AuthController {
 
       return res
         .status(201)
-        .json({ message: "회원가입 완료 되었습니다.", data: newUser });
+        .json({ message: "회원가입이 완료 되었습니다.", data: newUser });
     } catch (err) {
       next(err);
     }
   };
 
   // 로그인
-  userSignIn = async (req, res, next) => {};
+  userSignIn = async (req, res, next) => {
+    try {
+      const { email, password } =
+        await userValidation.signInSchema.validateAsync(req.body);
+
+      const [user, tokens] = await this.authService.userSignIn(email, password);
+
+      res.cookie("accessToken", `Bearer ${tokens.accessToken}`);
+      res.cookie("refreshToken", `Bearer ${tokens.refreshToken}`);
+
+      return res
+        .status(200)
+        .json({ message: `${user.name}님, 환영합니다!`, data: user });
+    } catch (err) {
+      next(err);
+    }
+  };
 
   // 로그아웃
   userSignOut = async (req, res, next) => {};
