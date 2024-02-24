@@ -18,7 +18,7 @@ export class UsersRepository {
   };
 
   createUser = async (email, password, name, address, role) => {
-    const newUser = await this.prisma.users.craete({
+    const newUser = await this.prisma.users.create({
       data: {
         email,
         password,

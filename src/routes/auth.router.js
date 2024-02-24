@@ -1,8 +1,8 @@
 import express from "express";
 import { prisma } from "../utils/index.js";
 import { AuthController } from "../controllers/auth.controller.js";
-import { AuthService } from "../controllers/auth.service.js";
-import { UsersRepository } from "../controllers/users.repository.js";
+import { AuthService } from "../services/auth.service.js";
+import { UsersRepository } from "../repositories/users.repository.js";
 
 const router = express.Router();
 
