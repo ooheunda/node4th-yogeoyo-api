@@ -14,7 +14,7 @@ app.use(Logger);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", router);
+app.use("/", router);
 app.use(ErrorHandler);
 
 app.listen(PORT, () => {
