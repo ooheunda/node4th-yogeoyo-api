@@ -16,7 +16,9 @@ export class AuthService {
   // 회원가입
   userSignUp = async (email, password, name, address, role) => {
     if (!["user", "owner", "admin"].includes(role))
-      throw new ValidationError("권한은 user, owner, admin 중 하나 입니다.");
+      throw new ValidationError(
+        "권한은 user, owner, admin 중 하나여야 합니다."
+      );
 
     const isExistUser = await this.usersRepository.getUserByEmail(email);
     if (isExistUser) throw new ConflictError("이미 사용중인 이메일 입니다.");
@@ -31,7 +33,8 @@ export class AuthService {
       role
     );
 
-    await this.pointsRepository.changePoint(newUser.userId, 1000000);
+    if (newUser.role === "user")
+      await this.pointsRepository.addPointHistory(newUser.userId, 1000000);
 
     return {
       userId: newUser.userId,
@@ -50,8 +53,10 @@ export class AuthService {
     if (!(await bcrypt.compare(password, user.password)))
       throw new UnauthorizedError("비밀번호가 올바르지 않습니다.");
 
-    // TODO: point sum
-    // const point = await this.pointsRepository.getSumOfUserPoints(user.userId);
+    const [rawPoint] = await this.pointsRepository.getSumOfUserPoints(
+      user.userId
+    );
+    const point = user.role === "user" ? rawPoint._sum.howMuch : 0;
 
     const accessToken = generateAccessToken(user.userId);
     const refreshToken = generateRefreshToken(user.userId);
@@ -61,6 +66,8 @@ export class AuthService {
         userId: user.userId,
         name: user.name,
         address: user.address,
+        point,
+        role: user.role,
       },
       { accessToken, refreshToken },
     ];
