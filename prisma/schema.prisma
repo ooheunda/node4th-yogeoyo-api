@@ -140,7 +140,7 @@ model Reviews {
   orderId   Int      @unique @map("orderid")
   rating    Int      @map("rating")
   content   String   @map("content")
-  image     String   @map("image")
+  image     String?  @map("image")
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
 
