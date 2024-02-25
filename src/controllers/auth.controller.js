@@ -59,5 +59,26 @@ export class AuthController {
   };
 
   // 로그아웃
-  userSignOut = async (req, res, next) => {};
+  userSignOut = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+
+      await this.authService.userSignOut(userId);
+
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      return res.status(200).json({ message: "로그아웃 되었습니다." });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // 액세스 토큰 재발급 (미들웨어에서 리다이렉트하는 방식으로만 접근됩니다.)
+  getAccessToken = async (req, res, next) => {
+    try {
+    } catch {
+      next(err);
+    }
+  };
 }

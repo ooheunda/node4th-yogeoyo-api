@@ -5,7 +5,11 @@ import {
   UnauthorizedError,
   ConflictError,
 } from "../utils/common.error.js";
-import { generateAccessToken, generateRefreshToken } from "../utils/jwtFunc.js";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  deleteRefreshToken,
+} from "../utils/jwtFunc.js";
 export class AuthService {
   constructor(usersRepository, pointsRepository) {
     this.usersRepository = usersRepository;
@@ -61,7 +65,7 @@ export class AuthService {
     const point = user.role === "user" ? rawPoint._sum.howMuch : 0;
 
     const accessToken = generateAccessToken(user.userId);
-    const refreshToken = generateRefreshToken(user.userId);
+    const refreshToken = await generateRefreshToken(user.userId);
 
     return [
       {
@@ -76,5 +80,10 @@ export class AuthService {
   };
 
   // 로그아웃
-  userSignOut = async (refreshToken) => {};
+  userSignOut = async (userId) => {
+    await deleteRefreshToken(userId);
+  };
+
+  // 액세스 토큰 재발급
+  getAccessToken = async (refreshToken) => {};
 }
