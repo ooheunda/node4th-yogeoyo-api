@@ -16,6 +16,6 @@ const authController = new AuthController(authService);
 router.post("/sign-up", authController.userSignUp);
 router.post("/sign-in", authController.userSignIn);
 router.post("/sign-out", authMiddleware, authController.userSignOut);
-router.post("/auth/tokens", authController.getAccessToken);
+router.post("/tokens", authController.getNewTokens);
 
 export default router;

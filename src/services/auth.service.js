@@ -8,8 +8,10 @@ import {
 import {
   generateAccessToken,
   generateRefreshToken,
+  verifyRefreshToken,
   deleteRefreshToken,
 } from "../utils/jwtFunc.js";
+
 export class AuthService {
   constructor(usersRepository, pointsRepository) {
     this.usersRepository = usersRepository;
@@ -85,5 +87,12 @@ export class AuthService {
   };
 
   // 액세스 토큰 재발급
-  getAccessToken = async (refreshToken) => {};
+  getNewTokens = async (refreshToken) => {
+    const token = await verifyRefreshToken(refreshToken);
+
+    const newAccessToken = generateAccessToken(token.userId);
+    const newRefreshToken = await generateRefreshToken(token.userId);
+
+    return [newAccessToken, newRefreshToken];
+  };
 }

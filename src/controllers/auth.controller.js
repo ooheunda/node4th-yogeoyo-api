@@ -75,9 +75,19 @@ export class AuthController {
   };
 
   // 액세스 토큰 재발급 (미들웨어에서 리다이렉트하는 방식으로만 접근됩니다.)
-  getAccessToken = async (req, res, next) => {
+  getNewTokens = async (req, res, next) => {
     try {
-    } catch {
+      const { refreshToken } = req.cookies;
+
+      const [newAccessToken, newRefreshToken] =
+        await this.authService.getNewTokens(refreshToken);
+
+      res.cookie("accessToken", `Bearer ${newAccessToken}`);
+      res.cookie("refreshToken", `Bearer ${newRefreshToken}`);
+
+      return res.status(200).json({ message: "요청을 다시 시도해주세요." });
+    } catch (err) {
+      res.clearCookie("refreshToken");
       next(err);
     }
   };
