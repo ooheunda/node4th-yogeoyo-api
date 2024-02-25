@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 import ErrorHandler from "./middlewares/error-handler.middleware.js";
 import Logger from "./middlewares/logger.middleware.js";
 import router from "./routes/index.js";
+import Reviewrouter from "./routes/reviews.router.js";
 
 dotenv.config();
 
@@ -14,7 +15,7 @@ app.use(Logger);
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api", router);
+app.use("/api", router, Reviewrouter);
 app.use(ErrorHandler);
 
 app.listen(PORT, () => {
