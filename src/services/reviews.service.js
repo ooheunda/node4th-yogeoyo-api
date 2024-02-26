@@ -3,13 +3,14 @@ export class ReviewService {
     this.reviewRepository = reviewRepository;
   }
 
-  createReview = async (userId, storeId, orderId, rating, content) => {
+  createReview = async (userId, storeId, orderId, rating, content, image) => {
     const createdReview = await this.reviewRepository.createReview(
       userId,
       storeId,
       orderId,
       rating,
-      content
+      content,
+      image
     );
     return {
       userId: createdReview.userId,
@@ -17,6 +18,7 @@ export class ReviewService {
       orderId: createdReview.orderId,
       rating: createdReview.rating,
       content: createdReview.content,
+      image: createdReview.image,
     };
   };
 
@@ -28,44 +30,29 @@ export class ReviewService {
         userId: reviews.userId,
         storeId: reviews.storeId,
         orderId: reviews.orderId,
-        rating: reviews.ratingId,
-        content: reviews.contentId,
+        rating: reviews.rating,
+        content: reviews.content,
+        image: reviews.image,
         createdAt: reviews.createdAt,
         updatedAt: reviews.updatedAt,
       };
     });
   };
 
-  updateReview = async (
-    reviewId,
-    userId,
-    storeId,
-    orderId,
-    rating,
-    content
-  ) => {
+  updateReview = async (reviewId, userId, rating, content) => {
     const review = await this.reviewRepository.getReview(reviewId);
     if (!review) throw new Error("리뷰 조회에 실패하였습니다");
     if (review.userId != userId) {
       throw new Error("수정할 권한이 없습니다");
     }
 
-    await this.reviewRepository.updateReview(
-      reviewId,
-      userId,
-      storeId,
-      orderId,
-      rating,
-      content
-    );
+    await this.reviewRepository.updateReview(reviewId, userId, rating, content);
 
     const updatedReview = await this.reviewRepository.getReview(reviewId);
 
     return {
       reviewId: updatedReview.reviewId,
       userId: updatedReview.userId,
-      storeId: updatedReview.storeId,
-      orderId: updatedReview.orderId,
       rating: updatedReview.rating,
       content: updatedReview.content,
     };
@@ -81,8 +68,7 @@ export class ReviewService {
   ) => {
     const review = await this.reviewRepository.getReview(reviewId);
     if (!review) throw new Error("리뷰 조회에 실패하였습니다");
-    // if (review.userId != userId)
-    //   throw new Error("본인이 작성한 리뷰가 아닙니다");
+    // if (review.userId != userId) throw new Error("삭제할 권한이 없습니다");
     await this.reviewRepository.deleteReview(
       reviewId,
       storeId,
