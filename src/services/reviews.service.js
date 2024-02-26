@@ -1,16 +1,26 @@
+import { UnauthorizedError, NotFoundError } from "../utils/common.error.js";
 export class ReviewService {
   constructor(reviewRepository) {
     this.reviewRepository = reviewRepository;
   }
 
-  createReview = async (userId, storeId, orderId, rating, content, image) => {
+  createReview = async (
+    userId,
+    storeId,
+    orderId,
+    rating,
+    content,
+    image,
+    createdAt
+  ) => {
     const createdReview = await this.reviewRepository.createReview(
       userId,
       storeId,
       orderId,
       rating,
       content,
-      image
+      image,
+      createdAt
     );
     return {
       userId: createdReview.userId,
@@ -19,72 +29,64 @@ export class ReviewService {
       rating: createdReview.rating,
       content: createdReview.content,
       image: createdReview.image,
+      createdAt: createdReview.createdAt,
     };
   };
 
-  getReview = async () => {
-    const reviews = await this.reviewRepository.getReview();
-    return reviews.map((reviews) => {
-      return {
-        reviewId: reviews.reviewId,
-        userId: reviews.userId,
-        storeId: reviews.storeId,
-        orderId: reviews.orderId,
-        rating: reviews.rating,
-        content: reviews.content,
-        image: reviews.image,
-        createdAt: reviews.createdAt,
-        updatedAt: reviews.updatedAt,
-      };
-    });
+  getReview = async (storeId) => {
+    const reviews = await this.reviewRepository.getReview(storeId);
+    // return reviews.map((reviews) => ({
+    //   reviewId: reviews.reviewId,
+    //   userId: reviews.userId,
+    //   storeId: reviews.storeId,
+    //   orderId: reviews.orderId,
+    //   rating: reviews.rating,
+    //   content: reviews.content,
+    //   image: reviews.image,
+    //   createdAt: reviews.createdAt,
+    //   updatedAt: reviews.updatedAt,
+    // }));
+    return reviews;
   };
 
-  updateReview = async (reviewId, userId, rating, content) => {
-    const review = await this.reviewRepository.getReview(reviewId);
-    if (!review) throw new Error("리뷰 조회에 실패하였습니다");
-    if (review.userId != userId) {
-      throw new Error("수정할 권한이 없습니다");
+  updateReview = async (reviewId, storeId, userId, rating, content, image) => {
+    const review = await this.reviewRepository.getReviewId(reviewId);
+    if (!review) throw new NotFoundError("리뷰를 찾을 수 없습니다");
+    if (review.userId !== userId) {
+      throw new UnauthorizedError("수정할 권한이 없습니다");
     }
 
-    await this.reviewRepository.updateReview(reviewId, userId, rating, content);
+    await this.reviewRepository.updateReview(
+      reviewId,
+      storeId,
+      userId,
+      rating,
+      content,
+      image
+    );
 
     const updatedReview = await this.reviewRepository.getReview(reviewId);
 
     return {
       reviewId: updatedReview.reviewId,
+      storeId: updatedReview.storeId,
       userId: updatedReview.userId,
       rating: updatedReview.rating,
       content: updatedReview.content,
+      image: updatedReview.image,
     };
   };
 
-  deleteReview = async (
-    reviewId,
-    storeId,
-    orderId,
-    userId,
-    rating,
-    content
-  ) => {
-    const review = await this.reviewRepository.getReview(reviewId);
-    if (!review) throw new Error("리뷰 조회에 실패하였습니다");
-    // if (review.userId != userId) throw new Error("삭제할 권한이 없습니다");
-    await this.reviewRepository.deleteReview(
-      reviewId,
-      storeId,
-      orderId,
-      userId,
-      rating,
-      content
-    );
+  deleteReview = async (reviewId, userId) => {
+    const review = await this.reviewRepository.getReviewId(reviewId);
+    if (!review) throw new NotFoundError("리뷰를 찾을 수 없습니다");
+    if (review.userId != userId)
+      throw new UnauthorizedError("삭제할 권한이 없습니다");
+    await this.reviewRepository.deleteReview(reviewId, userId);
 
     return {
       reviewId: review.reviewId,
-      storeId: review.storeId,
-      orderId: review.orderId,
       userId: review.userId,
-      rating: review.rating,
-      content: review.content,
     };
   };
 }

@@ -16,9 +16,9 @@ export class ReviewRepository {
     return createdReview;
   };
 
-  getReview = async () => {
+  getReview = async (storeId) => {
     const reviews = await this.prisma.reviews.findMany({
-      include: {},
+      where: { storeId: +storeId },
     });
     return reviews;
   };
@@ -29,21 +29,12 @@ export class ReviewRepository {
     });
     return review;
   };
-  updateReview = async (
-    reviewId,
-    storeId,
-    orderId,
-    userId,
-    rating,
-    content,
-    image
-  ) => {
+  updateReview = async (reviewId, storeId, userId, rating, content, image) => {
     const updatedReview = await this.prisma.reviews.update({
       where: { reviewId: +reviewId },
       data: {
         userId,
         storeId: +storeId,
-        orderId: +orderId,
         rating,
         content,
         image,
@@ -52,13 +43,10 @@ export class ReviewRepository {
     return updatedReview;
   };
 
-  deleteReview = async (reviewId, storeId, orderId, userId) => {
+  deleteReview = async (reviewId) => {
     const deletedReview = await this.prisma.reviews.delete({
       where: {
         reviewId: +reviewId,
-        storeId: +storeId,
-        orderId: +orderId,
-        userId: +userId,
       },
     });
     return deletedReview;

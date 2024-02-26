@@ -9,8 +9,12 @@ export class ReviewController {
       const { userId } = req.user;
       const { storeId, orderId } = req.params;
       const image = req.file;
-      if (!content || !rating || !userId || !storeId || !orderId)
-        throw new ValidationError("InvalidParamsError");
+
+      if (!content || !rating)
+        throw new ValidationError("content와 rating의 값을 입력해주세요");
+
+      if (!storeId || !orderId) throw new ValidationError("InvalidParamsError");
+
       const createdReview = await this.reviewService.createReview(
         userId,
         storeId,
@@ -27,7 +31,8 @@ export class ReviewController {
 
   getReview = async (req, res, next) => {
     try {
-      const reviews = await this.reviewService.getReview();
+      const { storeId } = req.params;
+      const reviews = await this.reviewService.getReview(storeId);
       return res.status(200).json({ data: reviews });
     } catch (err) {
       next(err);
@@ -38,12 +43,17 @@ export class ReviewController {
     try {
       const { content, rating } = req.body;
       const { userId } = req.user;
-      const { reviewId, storeId, orderId } = req.params;
+      const { reviewId, storeId } = req.params;
       const image = req.file;
+
+      if (!content || !rating)
+        throw new ValidationError("content와 rating의 값을 입력해주세요");
+
+      if (!storeId) throw new ValidationError("InvalidParamsError");
+
       const updatedReview = await this.reviewService.updateReview(
         reviewId,
         storeId,
-        orderId,
         userId,
         rating,
         content,
@@ -58,15 +68,11 @@ export class ReviewController {
 
   deleteReview = async (req, res, next) => {
     try {
-      const { reviewId, rating, content, storeId, orderId } = req.params;
+      const { reviewId } = req.params;
       const { userId } = req.user;
       const deletedReview = await this.reviewService.deleteReview(
         reviewId,
-        storeId,
-        orderId,
-        userId,
-        rating,
-        content
+        userId
       );
       return res.status(200).json({ message: "리뷰 삭제에 성공하였습니다" });
     } catch (err) {
