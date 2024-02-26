@@ -3,20 +3,20 @@ export class ReviewService {
     this.reviewRepository = reviewRepository;
   }
 
-  createReview = async (userId, storeId, orderId, content, rating) => {
+  createReview = async (userId, storeId, orderId, rating, content) => {
     const createdReview = await this.reviewRepository.createReview(
       userId,
       storeId,
       orderId,
-      content,
-      rating
+      rating,
+      content
     );
     return {
       userId: createdReview.userId,
       storeId: createdReview.storeId,
       orderId: createdReview.orderId,
-      content: createdReview.content,
       rating: createdReview.rating,
+      content: createdReview.content,
     };
   };
 
@@ -28,8 +28,8 @@ export class ReviewService {
         userId: reviews.userId,
         storeId: reviews.storeId,
         orderId: reviews.orderId,
-        content: reviews.contentId,
         rating: reviews.ratingId,
+        content: reviews.contentId,
         createdAt: reviews.createdAt,
         updatedAt: reviews.updatedAt,
       };
@@ -41,8 +41,8 @@ export class ReviewService {
     userId,
     storeId,
     orderId,
-    content,
-    rating
+    rating,
+    content
   ) => {
     const review = await this.reviewRepository.getReview(reviewId);
     if (!review) throw new Error("리뷰 조회에 실패하였습니다");
@@ -55,8 +55,8 @@ export class ReviewService {
       userId,
       storeId,
       orderId,
-      content,
-      rating
+      rating,
+      content
     );
 
     const updatedReview = await this.reviewRepository.getReview(reviewId);
@@ -66,8 +66,8 @@ export class ReviewService {
       userId: updatedReview.userId,
       storeId: updatedReview.storeId,
       orderId: updatedReview.orderId,
-      content: updatedReview.content,
       rating: updatedReview.rating,
+      content: updatedReview.content,
     };
   };
 

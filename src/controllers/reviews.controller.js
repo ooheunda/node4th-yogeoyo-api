@@ -1,3 +1,4 @@
+import { ValidationError } from "../utils/common.error.js";
 export class ReviewController {
   constructor(reviewService) {
     this.reviewService = reviewService;
@@ -8,13 +9,13 @@ export class ReviewController {
       const { userId } = req.user;
       const { storeId, orderId } = req.params;
       if (!content || !rating || !userId || !storeId || !orderId)
-        throw new Error("InvalidParamsError");
+        throw new ValidationError("InvalidParamsError");
       const createdReview = await this.reviewService.createReview(
         userId,
         storeId,
         orderId,
-        content,
-        rating
+        rating,
+        content
       );
       return res.status(201).json({ data: createdReview });
     } catch (err) {
@@ -41,8 +42,8 @@ export class ReviewController {
         userId,
         storeId,
         orderId,
-        content,
-        rating
+        rating,
+        content
       );
 
       return res.status(200).json({ data: updatedReview });
