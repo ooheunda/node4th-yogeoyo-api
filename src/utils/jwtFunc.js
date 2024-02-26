@@ -5,7 +5,7 @@ export const generateAccessToken = (userId) => {
   const accessToken = jwt.sign(
     { userId },
     process.env.ACCESS_TOKEN_SECRET_KEY,
-    { expiresIn: "1h" }
+    { expiresIn: "1H" }
   );
   return accessToken;
 };
@@ -38,6 +38,22 @@ export const verifyRefreshToken = async (refreshToken) => {
 
 export const deleteRefreshToken = async (userId) => {
   await redis.del(`${userId}`);
+};
+
+export const generateEmailToken = (userId, email, role) => {
+  const token = jwt.sign(
+    { userId, email, role },
+    process.env.EMAIL_TOKEN_SECRET_KEY,
+    {
+      expiresIn: "12h",
+    }
+  );
+
+  return token;
+};
+
+export const verifyEmailToken = (token) => {
+  return jwt.verify(token, process.env.EMAIL_TOKEN_SECRET_KEY);
 };
 
 const checkTokenType = (token) => {

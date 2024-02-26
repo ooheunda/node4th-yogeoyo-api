@@ -34,7 +34,7 @@ export class UsersRepository {
   updateUser = async (userId, email, password, name, address, role) => {
     await this.prisma.users.update({
       where: {
-        userid: +userId,
+        userId: +userId,
       },
       data: {
         email,
@@ -51,6 +51,13 @@ export class UsersRepository {
       where: {
         userId: +userId,
       },
+    });
+  };
+
+  verifyUserRole = async (userId, role) => {
+    await this.prisma.users.update({
+      where: { userId: +userId },
+      data: { role },
     });
   };
 }
