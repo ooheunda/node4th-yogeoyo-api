@@ -35,7 +35,7 @@ model Points {
   pointId Int      @id @default(autoincrement()) @map("pointId")
   userId  Int      @map("userId")
   howMuch Int      @map("howMuch")
-  when    DateTime @map("when")
+  when    DateTime @default(now()) @map("when")
 
   user Users @relation(fields: [userId], references: [userId], onDelete: Cascade, onUpdate: Cascade)
 
