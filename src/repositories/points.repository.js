@@ -23,10 +23,12 @@ export class PointsRepository {
     return point;
   };
 
-  addPointHistory = async (userId, howMuch) => {
+  addPointHistory = async (userId, howMuch, reason, orderId) => {
     await this.prisma.points.create({
       data: {
         userId: +userId,
+        orderId: orderId ? +orderId : null,
+        reason,
         howMuch,
       },
     });

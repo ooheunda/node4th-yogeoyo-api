@@ -115,6 +115,10 @@ export class AuthService {
     );
 
     if (decodedToken.role === "user")
-      await this.pointsRepository.addPointHistory(decodedToken.userId, 1000000);
+      await this.pointsRepository.addPointHistory(
+        decodedToken.userId,
+        1000000,
+        "가입 축하금"
+      );
   };
 }
