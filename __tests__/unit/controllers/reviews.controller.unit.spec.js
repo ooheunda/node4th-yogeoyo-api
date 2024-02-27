@@ -90,7 +90,7 @@ describe("Review Controller Unit Test", () => {
     });
   });
 
-  test("createReview Method by Invalid Params Error", async () => {
+  test("createReview Method by Validation Error", async () => {
     mockRequest.body = {
       rating: "Rating_InvalidParamsError",
       content: "Content_InvalidParamsError",
@@ -98,6 +98,8 @@ describe("Review Controller Unit Test", () => {
     mockRequest.body = mockNext;
     await reviewController.createReview(mockRequest, mockResponse, mockNext);
 
-    expect(mockNext).toHaveBeenCalledWith(new Error("InvalidParamsError"));
+    expect(mockNext).toHaveBeenCalledWith(
+      new Error("content와 rating의 값을 입력해주세요")
+    );
   });
 });
