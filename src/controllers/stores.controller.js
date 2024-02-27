@@ -85,6 +85,9 @@ export class StoresController {
       if (!storeId) {
         throw new NotFoundError("수정할 음식점이 존재하지 않습니다.");
       }
+      if (!name && !address && !category) {
+        throw new ValidationError("수정할 정보가 존재하지 않습니다.");
+      }
 
       await storesService.updateStore(
         storeId,
