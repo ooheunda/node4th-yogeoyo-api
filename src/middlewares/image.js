@@ -14,6 +14,8 @@ const uploadImage = multer({
   storage: multerS3({
     s3: s3,
     bucket: process.env.AWS_BUCKET,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+
     key: (req, file, callback) => {
       const { userId } = req.user;
 
@@ -30,7 +32,7 @@ const uploadImage = multer({
         randomNumber += String(Math.floor(Math.random() * 10));
       }
 
-      callback(null, `${userId}_${date}_${randomNumber}`);
+      callback(null, `${userId}_${date}_${randomNumber}.jpg`);
     },
     // acl 권한 설정
     acl: "public-read-write",
