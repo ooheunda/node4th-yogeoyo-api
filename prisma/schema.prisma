@@ -79,7 +79,7 @@ model Menus {
 
   store Stores @relation(fields: [storeId], references: [storeId], onDelete: Cascade, onUpdate: Cascade)
 
-  @@map("Menus")
+  @@map("menus")
 }
 
 enum MenuStatus {
