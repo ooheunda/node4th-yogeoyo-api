@@ -1,27 +1,61 @@
 export class OrderService {
-  constructor(orderRepository) {
+  constructor(
+    orderRepository,
+    userRepository,
+    addPointHistory,
+    menusRepository
+  ) {
     this.orderRepository = orderRepository;
+    this.userRepository = userRepository;
+    this.addPointHistory = addPointHistory;
+    this.menusRepository = menusRepository;
   }
 
-  createOrders = async (userId, storeId, request, totalPrice, orderItems) => {
-    if (!storeId || !totalPrice || !orderItems) {
+  createOrders = async (userId, storeId, menus, request) => {
+    if (!storeId) {
       throw new Error("주문정보가 올바르지 않습니다.");
     }
+
+    // let totalPrice = 0; // 체크
+    for (const menu of menus) {
+      const { menuId, quantity } = menu;
+      const menuInfo = await this.menusRepository.getMenus(menuId);
+      if (!menuInfo) {
+        throw new Error("메뉴 정보가 올바르지 않습니다.");
+      }
+      totalPrice += menuInfo.price * quantity;
+    }
+
+    const points = await this.pointsRepository.addPointHistory(
+      userId,
+      orderId,
+      "주문 완료로 인한 포인트 차감",
+      -totalPrice
+    );
+    if (!points) {
+      throw new Error("포인트가 올바르지 않습니다.");
+    }
+
+    const currentPoints = points.howmuch - totalPrice;
+
+    const status = "accepted";
 
     const createdOrders = await this.orderRepository.createOrders(
       userId,
       storeId,
+      status,
       request,
       totalPrice,
-      orderItems
+      currentPoints
     );
 
     return {
       userId: createdOrders.userId,
       storeId: createdOrders.storeId,
+      status: createdOrders.status,
       request: createdOrders.request,
       totalPrice: createdOrders.totalPrice,
-      orderItems: createdOrders.orderItems,
+      currentPoints: createdOrders.currentPoints,
       createdAt: createdOrders.createdAt,
       updatedAt: createdOrders.updatedAt,
     };
@@ -35,9 +69,9 @@ export class OrderService {
       name: order.name,
       address: order.address,
       category: order.category,
+      status: order.status,
       request: order.request,
       totalPrice: order.totalPrice,
-      orderItems: order.orderItems,
       createdAt: order.createdAt,
       updatedAt: order.updatedAt,
     };
@@ -51,7 +85,10 @@ export class OrderService {
 
     await this.orderRepository.updateOrders(orderId, status);
 
-    const updatedOrders = await this.orderRepository.findOrdersById(orderId);
+    const updatedOrders = await this.orderRepository.updateOrders(
+      orderId,
+      status
+    );
     if (!updatedOrders) {
       throw new Error("주문이 변경되지 않았습니다.");
     }

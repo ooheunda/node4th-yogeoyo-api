@@ -5,7 +5,7 @@ export class OrderItemsService {
 
   createOrderItems = async (menuId, orderId, quantity) => {
     if (!menuId || !orderId || !quantity) {
-      throw new Error("장바구니가 올바르지 않습니다.");
+      throw new Error("주문 항목이 올바르지 않습니다.");
     }
 
     const createdOrderItmes = await this.orderItemsRepository.createOrderItems(
@@ -21,9 +21,45 @@ export class OrderItemsService {
     };
   };
 
-  findOrderItmesById = async () => {};
+  findOrderItemsById = async (orderId) => {
+    const orderItem =
+      await this.orderItemsRepository.findOrderItemsById(orderId);
 
-  updateOrderItmes = async () => {};
+    return orderItem;
+  };
 
-  deleteOrderItmes = async () => {};
+  updateOrderItems = async (orderId, quantity) => {
+    const orderItems =
+      await this.orderItemsRepository.findOrderItemsById(orderId);
+    if (!orderItems) {
+      throw new Error("주문 항목이 없습니다.");
+    }
+
+    const updatedOrderItems = await this.orderItemsRepository.updateOrderItems(
+      orderId,
+      quantity
+    );
+    if (!updatedOrderItems) {
+      throw new Error("주문 항목을 업데이트 할 수 없습니다.");
+    }
+
+    return {
+      orderId: updatedOrderItems.orderId,
+      quantity: updatedOrderItems.quantity,
+    };
+  };
+
+  deleteOrderItems = async (orderId) => {
+    const orderItems = await this.orderItemsRepository.findOrdersById(orderId);
+    if (!orderItems) {
+      throw new Error("주문 항목이 존재하지 않습니다.");
+    }
+
+    const deletedOrderItems =
+      await this.orderItemsRepository.deleteOrderItems(orderId);
+
+    return {
+      orderId: deletedOrderItems.orderId,
+    };
+  };
 }

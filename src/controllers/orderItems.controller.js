@@ -1,19 +1,20 @@
 export class OrderItemsController {
-  constructor(orderItmesService) {
-    this.orderItmesService = orderItmesService;
+  constructor(orderItemsService) {
+    this.orderItemsService = orderItemsService;
   }
 
-  // 장바구니 생성  // orderId 는 ?
+  // 주문항목 생성  // orderId 는 ?
   createOrderItems = async (req, res, next) => {
     try {
-      const { quantity } = req.body;
-      const { menuId, orderId } = req.params;
+      const { menuId, orderId, quantity } = req.body;
 
-      if (!quantity) {
-        return res.status(400).json({ message: "수량이 없습니다." });
+      if (!menuId || !orderId || !quantity) {
+        return res
+          .status(400)
+          .json({ message: "메뉴Id, 오더Id , 수량이 없습니다." });
       }
 
-      const createdOrderItmes = await this.orderItmesService.createOrderItems(
+      const createdOrderItmes = await this.orderItemsService.createOrderItems(
         menuId,
         orderId,
         quantity
@@ -24,12 +25,13 @@ export class OrderItemsController {
     }
   };
 
-  // 장바구니 조회
+  // 주문항목 조회
   getOrderItem = async (req, res, next) => {
     try {
-      const { menuId } = req.params;
+      const { orderId } = req.params;
 
-      const orderItem = await this.orderItmesService.findOrderItmesById(menuId);
+      const orderItem =
+        await this.orderItemsService.findOrderItemsById(orderId);
 
       return res.status(200).json({ data: orderItem });
     } catch (err) {
@@ -37,30 +39,30 @@ export class OrderItemsController {
     }
   };
 
-  // 장바구니 수량변경
+  // 주문항목 수량변경
   updateOrderItmes = async (req, res, next) => {
     try {
+      const { orderId } = req.params;
       const { quantity } = req.body;
-      const { menuId } = req.params;
 
-      const updatedOrderItmes = await this.orderItmesService.updateOrderItmes(
-        menuId,
+      const updatedOrderItems = await this.orderItemsService.updateOrderItmes(
+        orderId,
         quantity
       );
 
-      return res.status(200).json({ data: updatedOrderItmes });
+      return res.status(200).json({ data: updatedOrderItems });
     } catch (err) {
       next(err);
     }
   };
 
-  // 장바구니 삭제
-  deleteOrderItmes = async (req, res, next) => {
+  // 주문항목 삭제
+  deleteOrderItems = async (req, res, next) => {
     try {
-      const { menuId } = req.params;
+      const { orderId } = req.params;
 
       const deletedOrderItems =
-        await this.orderItmesService.deleteOrderItmes(menuId);
+        await this.orderItemsService.deleteOrderItems(orderId);
 
       return res.status(200).json({ data: deletedOrderItems });
     } catch (err) {

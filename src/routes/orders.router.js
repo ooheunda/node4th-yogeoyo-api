@@ -1,4 +1,5 @@
 import express from "express";
+import { prisma } from "../utils/prisma.client.js";
 import { OrdersController } from "../controllers/orders.controller.js";
 import { OrderService } from "../services/orders.service.js";
 import { OrderRepository } from "../repositories/orders.repository.js";
@@ -7,18 +8,19 @@ import { PointsRepository } from "../repositories/points.repository.js";
 
 const router = express.Router();
 
-const usersRepository = new UsersRepository(usersRepository);
-const pointsRepository = new PointsRepository(pointsRepository);
+// 역순서대로 해줘야됨
+const ordersRepository = new OrderRepository(prisma);
+const usersRepository = new UsersRepository(prisma);
+const pointsRepository = new PointsRepository(prisma);
+const ordersService = new OrderService(ordersRepository);
 const ordersController = new OrdersController(
   ordersService,
   usersRepository,
   pointsRepository
 );
-const ordersService = new OrderService(ordersRepository);
-const ordersRepository = new OrderRepository(prisma);
 
 // 주문
-router.post("/", ordersController.createOrders);
+router.post("/order", ordersController.createOrders);
 
 // 주문 확인
 router.get("/", ordersController.getOrder);

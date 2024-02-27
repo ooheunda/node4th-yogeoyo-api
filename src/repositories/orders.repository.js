@@ -3,14 +3,20 @@ export class OrderRepository {
     this.prisma = prisma;
   }
 
-  createOrders = async (userId, storeId, request, totalPrice, orderItems) => {
+  createOrders = async (
+    userId,
+    storeId,
+    request,
+    totalPrice,
+    currentPoints
+  ) => {
     const createdOrders = await this.prisma.orders.create({
       data: {
         userId,
         storeId,
         request,
         totalPrice,
-        orderItems,
+        currentPoints,
       },
     });
 

@@ -15,5 +15,5 @@ router.get("/", orderItemsController.getOrderItem);
 router.put("/", orderItemsController.updateOrderItmes);
 
 // 장바구니 특정상품 제거
-router.delete("/", orderItemsController.deleteOrderItmes);
+router.delete("/", orderItemsController.deleteOrderItems);
 export default router;
