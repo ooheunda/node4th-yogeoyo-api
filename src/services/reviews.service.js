@@ -38,17 +38,6 @@ export class ReviewService {
 
   getReview = async (storeId) => {
     const reviews = await this.reviewRepository.getReview(storeId);
-    // return reviews.map((reviews) => ({
-    //   reviewId: reviews.reviewId,
-    //   userId: reviews.userId,
-    //   storeId: reviews.storeId,
-    //   orderId: reviews.orderId,
-    //   rating: reviews.rating,
-    //   content: reviews.content,
-    //   image: reviews.image,
-    //   createdAt: reviews.createdAt,
-    //   updatedAt: reviews.updatedAt,
-    // }));
     return reviews;
   };
 
