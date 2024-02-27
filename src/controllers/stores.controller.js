@@ -47,7 +47,9 @@ export class StoresController {
   // 음식점 생성
   createStore = async (req, res, next) => {
     try {
+      const storeId = req.params.storeId;
       const { name, address, category, status } = req.body;
+      const userId = authMiddleware.userId;
 
       if (!name) {
         throw new ValidationError("음식점 이름은 필수값입니다.");
@@ -59,12 +61,11 @@ export class StoresController {
         throw new ValidationError("업종 카테고리는 필수값입니다.");
       }
 
-      await storesService.createStore({
-        name,
-        address,
-        category,
-        status,
-      });
+      await storesService.createStore(
+        storeId,
+        { name, address, category, status },
+        userId
+      );
 
       return res
         .status(201)
@@ -100,10 +101,11 @@ export class StoresController {
   // 음식점 삭제
   deleteStore = async (req, res, next) => {
     try {
-      const { userId } = req.locals.user;
+      const userId = authMiddleware.userId;
       const storeId = req.params.storeId;
+      const { password } = req.body;
 
-      await storesService.deleteStore(storeId, userId);
+      await storesService.deleteStore(storeId, userId, password);
 
       return res.status(201).json({ data: deleteStore });
     } catch (err) {
