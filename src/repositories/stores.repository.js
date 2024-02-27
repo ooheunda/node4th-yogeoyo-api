@@ -1,6 +1,7 @@
-import { prisma } from "../utils/index.js";
-
 export class StoresRepository {
+  constructor(prisma) {
+    this.prisma = prisma;
+  }
   // 음식점 전체 조회
   findAllSortedStores = async (sort) => {
     const stores = await prisma.stores.findMany({

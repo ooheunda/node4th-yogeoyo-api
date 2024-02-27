@@ -1,7 +1,7 @@
-import { StoresRepository } from "../repositories/stores.repository.js";
-
 export class StoresService {
-  storesRepository = new StoresRepository();
+  constructor(storesRepository) {
+    this.storesRepository = storesRepository;
+  }
 
   // 음식점 목록 조회
   findAllSortedStores = async (sort) => {

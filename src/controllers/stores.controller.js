@@ -1,7 +1,7 @@
-import { StoresService } from "../services/stores.service.js";
-
 export class StoresController {
-  storesService = new StoresService();
+  constructor(storesService) {
+    this.storesService = storesService;
+  }
 
   // 음식점 목록 조회
   findAllStores = async (req, res, next) => {
