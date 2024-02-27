@@ -7,12 +7,7 @@ export class StoresRepository {
     const stores = await prisma.stores.findMany({
       select: {
         storeId: true,
-        title: true,
-        content: true,
-        state: true,
-        user: {
-          select: { name: true },
-        },
+        status: true,
         createdAt: true,
       },
       orderBy: [{ [sort.orderKey]: orderValue }],
@@ -29,12 +24,7 @@ export class StoresRepository {
       },
       select: {
         storeId: true,
-        title: true,
-        content: true,
-        state: true,
-        user: {
-          select: { name: true },
-        },
+        status: true,
         createdAt: true,
       },
     });
@@ -44,6 +34,9 @@ export class StoresRepository {
   // 음식점 생성
   createStore = async (data) => {
     await prisma.stores.create({
+        where: {
+            category: category.toLowerCase().find(category)
+        }
       data,
     });
   };
@@ -53,6 +46,7 @@ export class StoresRepository {
     await prisma.stores.update({
       where: {
         storeId: +storeId,
+        category: category.toLowerCase().find(category)
       },
       data,
     });
