@@ -10,7 +10,10 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
   deleteRefreshToken,
+  generateEmailToken,
+  verifyEmailToken,
 } from "../utils/jwtFunc.js";
+import { sendMail } from "../utils/nodemailer.js";
 
 export class AuthService {
   constructor(usersRepository, pointsRepository) {
@@ -20,10 +23,13 @@ export class AuthService {
 
   // 회원가입
   userSignUp = async (email, password, name, address, role) => {
-    if (!["user", "owner", "admin"].includes(role))
+    role = role || "user";
+
+    if (!["user", "owner", "admin"].includes(role)) {
       throw new ValidationError(
         "권한은 user, owner, admin 중 하나여야 합니다."
       );
+    }
 
     const isExistUser = await this.usersRepository.getUserByEmail(email);
     if (isExistUser) throw new ConflictError("이미 사용중인 이메일 입니다.");
@@ -38,11 +44,11 @@ export class AuthService {
       hashedPassword,
       name,
       address,
-      role
+      "needVerification"
     );
 
-    if (newUser.role === "user")
-      await this.pointsRepository.addPointHistory(newUser.userId, 1000000);
+    const emailToken = generateEmailToken(newUser.userId, newUser.email, role);
+    await sendMail(email, emailToken);
 
     return {
       userId: newUser.userId,
@@ -60,6 +66,9 @@ export class AuthService {
 
     if (!(await bcrypt.compare(password, user.password)))
       throw new UnauthorizedError("비밀번호가 올바르지 않습니다.");
+
+    if (user.role === "needVerification")
+      throw new UnauthorizedError("이메일 인증을 완료해주세요.");
 
     const [rawPoint] = await this.pointsRepository.getSumOfUserPoints(
       user.userId
@@ -94,5 +103,22 @@ export class AuthService {
     const newRefreshToken = await generateRefreshToken(token.userId);
 
     return [newAccessToken, newRefreshToken];
+  };
+
+  // 이메일 인증
+  verifyEmail = async (emailToken) => {
+    const decodedToken = verifyEmailToken(emailToken);
+
+    await this.usersRepository.verifyUserRole(
+      decodedToken.userId,
+      decodedToken.role
+    );
+
+    if (decodedToken.role === "user")
+      await this.pointsRepository.addPointHistory(
+        decodedToken.userId,
+        1000000,
+        "가입 축하금"
+      );
   };
 }

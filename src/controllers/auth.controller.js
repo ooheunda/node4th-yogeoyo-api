@@ -9,14 +9,8 @@ export class AuthController {
   // 회원가입
   userSignUp = async (req, res, next) => {
     try {
-      const {
-        email,
-        password,
-        passwordConfirm,
-        name,
-        address,
-        role = "user",
-      } = await userValidation.signUpSchema.validateAsync(req.body);
+      const { email, password, passwordConfirm, name, address, role } =
+        await userValidation.signUpSchema.validateAsync(req.body);
 
       if (password !== passwordConfirm)
         throw new ValidationError(
@@ -88,6 +82,20 @@ export class AuthController {
       return res.status(200).json({ message: "요청을 다시 시도해주세요." });
     } catch (err) {
       res.clearCookie("refreshToken");
+      next(err);
+    }
+  };
+
+  verifyEmail = async (req, res, next) => {
+    try {
+      const { token } = req.params;
+
+      await this.authService.verifyEmail(token);
+
+      return res
+        .status(200)
+        .json({ message: "인증이 완료되었습니다. 로그인 하세요." });
+    } catch (err) {
       next(err);
     }
   };

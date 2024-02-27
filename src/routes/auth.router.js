@@ -17,5 +17,6 @@ router.post("/sign-up", authController.userSignUp);
 router.post("/sign-in", authController.userSignIn);
 router.post("/sign-out", authMiddleware, authController.userSignOut);
 router.post("/tokens", authController.getNewTokens);
+router.get("/verify-email/:token", authController.verifyEmail);
 
 export default router;
