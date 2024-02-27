@@ -8,7 +8,7 @@ export class ReviewRepository {
         userId,
         storeId: +storeId,
         orderId: +orderId,
-        rating,
+        rating: +rating,
         content,
         image,
       },
