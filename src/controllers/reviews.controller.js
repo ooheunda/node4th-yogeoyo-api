@@ -8,13 +8,12 @@ export class ReviewController {
       const { content, rating } = req.body;
       const { userId } = req.user;
       const { storeId, orderId } = req.params;
-      const image = req.file;
-
       if (!content || !rating)
         throw new ValidationError("content와 rating의 값을 입력해주세요");
 
       if (!storeId || !orderId) throw new ValidationError("InvalidParamsError");
-
+      let image = null;
+      if (req.file) image = req.file.location;
       const createdReview = await this.reviewService.createReview(
         userId,
         storeId,

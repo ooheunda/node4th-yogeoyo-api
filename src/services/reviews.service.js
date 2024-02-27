@@ -11,7 +11,8 @@ export class ReviewService {
     rating,
     content,
     image,
-    createdAt
+    createdAt,
+    updatedAt
   ) => {
     const createdReview = await this.reviewRepository.createReview(
       userId,
@@ -20,7 +21,8 @@ export class ReviewService {
       rating,
       content,
       image,
-      createdAt
+      createdAt,
+      updatedAt
     );
     return {
       userId: createdReview.userId,
@@ -30,6 +32,7 @@ export class ReviewService {
       content: createdReview.content,
       image: createdReview.image,
       createdAt: createdReview.createdAt,
+      updatedAt: createdReview.updatedAt,
     };
   };
 

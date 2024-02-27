@@ -24,16 +24,12 @@ router.get("/:storeId", authMiddleware, reviewController.getReview);
 
 //리뷰 수정
 router.patch(
-  "/:storeId/:orderId/:reviewId",
+  "/:storeId/:reviewId",
   authMiddleware,
   reviewController.updateReview
 );
 
 //리뷰 삭제
-router.delete(
-  "/:storeId/:orderId/:reviewId",
-  authMiddleware,
-  reviewController.deleteReview
-);
+router.delete("/:reviewId", authMiddleware, reviewController.deleteReview);
 
 export default router;
