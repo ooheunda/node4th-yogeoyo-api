@@ -1,3 +1,5 @@
+import { ValidationError, NotFoundError } from "../utils/common.error.js";
+
 export class StoresController {
   constructor(storesService) {
     this.storesService = storesService;
@@ -10,14 +12,10 @@ export class StoresController {
       const orderValue = req.query.orderValue ?? "desc";
 
       if (!["storeId", "status"].includes(orderKey)) {
-        return res
-          .status(400)
-          .json({ message: "orderKey가 올바르지 않습니다." });
+        throw new ValidationError("orderKey가 올바르지 않습니다.");
       }
       if (!["asc", "desc"].includes(orderValue.toLowerCase())) {
-        return res
-          .status(400)
-          .json({ message: "orderValue가 올바르지 않습니다." });
+        throw new ValidationError("orderValue가 올바르지 않습니다.");
       }
 
       findAllSortedStores();
@@ -38,10 +36,6 @@ export class StoresController {
     try {
       const storeId = req.params.storeId;
 
-      if (!storeId) {
-        return res.status(400).json({ message: "storeId는 필수값입니다." });
-      }
-
       const store = await storesService.findOneStore(storeId);
 
       return res.status(200).json({ data: store });
@@ -53,24 +47,23 @@ export class StoresController {
   // 음식점 생성
   createStore = async (req, res, next) => {
     try {
-      const { name, address, category } = req.body;
+      const { name, address, category, status } = req.body;
 
       if (!name) {
-        return res.status(400).json({ message: "음식점 이름은 필수값입니다." });
+        throw new ValidationError("음식점 이름은 필수값입니다.");
       }
       if (!address) {
-        return res.status(400).json({ message: "음식점 주소는 필수값입니다." });
+        throw new ValidationError("음식점 주소는 필수값입니다.");
       }
       if (!category) {
-        return res
-          .status(400)
-          .json({ message: "업종 카테고리는 필수값입니다." });
+        throw new ValidationError("업종 카테고리는 필수값입니다.");
       }
 
       await storesService.createStore({
         name,
         address,
         category,
+        status,
       });
 
       return res
@@ -84,29 +77,19 @@ export class StoresController {
   // 음식점 수정
   updateStore = async (req, res, next) => {
     try {
-      const { storeId } = req.params.storeId;
-      const { name, address, category } = req.body;
+      const storeId = req.params.storeId;
+      const { name, address, category, status } = req.body;
+      const userId = authMiddleware.userId;
 
       if (!storeId) {
-        return res.status(400).json({
-          message: "수정할 음식점이 존재하지 않습니다.",
-        });
-      }
-      if (!name) {
-        return res.status(400).json({
-          message: "음식점 이름은 필수값입니다.",
-        });
-      }
-      if (!address) {
-        return res.status(400).json({ message: "음식점 주소는 필수값입니다." });
-      }
-      if (!category) {
-        return res
-          .status(400)
-          .json({ message: "업종 카테고리는 필수값입니다." });
+        throw new NotFoundError("수정할 음식점이 존재하지 않습니다.");
       }
 
-      await storesService.updateStore(storeId, { name, address }, userId);
+      await storesService.updateStore(
+        storeId,
+        { name, address, category, status },
+        userId
+      );
 
       return res.status(201).json({ data: updateStore });
     } catch (err) {
@@ -117,10 +100,10 @@ export class StoresController {
   // 음식점 삭제
   deleteStore = async (req, res, next) => {
     try {
-      const { userId } = res.locals.user;
-      const { storeId } = req.params.storeId;
+      const { userId } = req.locals.user;
+      const storeId = req.params.storeId;
 
-      await storesService.deleteStore(storeId, byUser);
+      await storesService.deleteStore(storeId, userId);
 
       return res.status(201).json({ data: deleteStore });
     } catch (err) {
