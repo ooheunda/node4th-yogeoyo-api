@@ -1,31 +1,32 @@
 import express from "express";
 import { prisma } from "../utils/prisma.client.js";
 import { OrdersController } from "../controllers/orders.controller.js";
-import { OrderService } from "../services/orders.service.js";
-import { OrderRepository } from "../repositories/orders.repository.js";
+import { OrdersService } from "../services/orders.service.js";
+import { OrdersRepository } from "../repositories/orders.repository.js";
 import { UsersRepository } from "../repositories/users.repository.js";
 import { PointsRepository } from "../repositories/points.repository.js";
+import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 // 역순서대로 해줘야됨
-const ordersRepository = new OrderRepository(prisma);
+const ordersRepository = new OrdersRepository(prisma);
 const usersRepository = new UsersRepository(prisma);
 const pointsRepository = new PointsRepository(prisma);
-const ordersService = new OrderService(ordersRepository);
-const ordersController = new OrdersController(
-  ordersService,
+const ordersService = new OrdersService(
+  ordersRepository,
   usersRepository,
   pointsRepository
 );
+const ordersController = new OrdersController(ordersService);
 
 // 주문
-router.post("/order", ordersController.createOrders);
+router.post("/", authMiddleware, ordersController.createOrders);
 
 // 주문 확인
-router.get("/", ordersController.getOrder);
+router.get("/", authMiddleware, ordersController.getOrder);
 
 // 주문 완료
-router.put("/", ordersController.updateOrders);
+router.put("/", authMiddleware, ordersController.updateOrders);
 
 export default router;

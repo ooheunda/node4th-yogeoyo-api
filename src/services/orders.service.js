@@ -1,11 +1,11 @@
-export class OrderService {
+export class OrdersService {
   constructor(
-    orderRepository,
+    ordersRepository,
     userRepository,
     addPointHistory,
     menusRepository
   ) {
-    this.orderRepository = orderRepository;
+    this.ordersRepository = ordersRepository;
     this.userRepository = userRepository;
     this.addPointHistory = addPointHistory;
     this.menusRepository = menusRepository;
@@ -25,7 +25,7 @@ export class OrderService {
       }
       totalPrice += menuInfo.price * quantity;
     }
-
+    console.log(totalPrice);
     const points = await this.pointsRepository.addPointHistory(
       userId,
       orderId,
@@ -40,13 +40,15 @@ export class OrderService {
 
     const status = "accepted";
 
-    const createdOrders = await this.orderRepository.createOrders(
+    const createdOrders = await this.ordersRepository.createOrders(
       userId,
       storeId,
       status,
       request,
       totalPrice,
-      currentPoints
+      currentPoints,
+      createdAt,
+      updatedAt
     );
 
     return {
@@ -62,7 +64,7 @@ export class OrderService {
   };
 
   findOrdersById = async (orderId) => {
-    const order = await this.orderRepository.findOrdersById(orderId);
+    const order = await this.ordersRepository.findOrdersById(orderId);
 
     return {
       orderId: order.orderId,
@@ -78,14 +80,12 @@ export class OrderService {
   };
 
   updateOrders = async (orderId, status) => {
-    const order = await this.orderRepository.findOrdersById(orderId);
+    const order = await this.ordersRepository.findOrdersById(orderId);
     if (!order) {
       throw new Error("존재하지 않는 주문입니다.");
     }
 
-    await this.orderRepository.updateOrders(orderId, status);
-
-    const updatedOrders = await this.orderRepository.updateOrders(
+    const updatedOrders = await this.ordersRepository.updateOrders(
       orderId,
       status
     );

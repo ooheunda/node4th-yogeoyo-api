@@ -1,6 +1,6 @@
 export class OrdersController {
-  constructor(orderService) {
-    this.orderService = orderService;
+  constructor(ordersService) {
+    this.ordersService = ordersService;
   }
 
   // 오더 주문 // status
@@ -9,8 +9,10 @@ export class OrdersController {
       const { request, menus } = req.body;
       const { storeId } = req.params;
       const { userId } = req.user;
+      console.log(request);
+      console.log(menus);
 
-      const createdOrders = await this.orderService.createOrders(
+      const createdOrders = await this.ordersService.createOrders(
         userId,
         storeId,
         menus,
@@ -28,7 +30,7 @@ export class OrdersController {
     try {
       const { orderId } = req.params;
 
-      const order = await this.orderService.findOrdersById(orderId);
+      const order = await this.ordersService.findOrdersById(orderId);
 
       return res.status(200).json({ data: order });
     } catch (err) {
@@ -52,7 +54,7 @@ export class OrdersController {
         return res.status(400).json({ message: "사장님이 아닙니다." });
       }
 
-      const updatedOrders = await this.orderService.updateOrders(
+      const updatedOrders = await this.ordersService.updateOrders(
         orderId,
         status
       );
