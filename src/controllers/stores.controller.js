@@ -18,9 +18,7 @@ export class StoresController {
         throw new ValidationError("orderValue가 올바르지 않습니다.");
       }
 
-      findAllSortedStores();
-
-      const stores = await storesService.findAllStores({
+      const stores = await this.storesService.findAllSortedStores({
         orderKey,
         orderValue: orderValue.toLowerCase(),
       });
@@ -36,7 +34,7 @@ export class StoresController {
     try {
       const storeId = req.params.storeId;
 
-      const store = await storesService.findOneStore(storeId);
+      const store = await this.storesService.findOneStore(storeId);
 
       return res.status(200).json({ data: store });
     } catch (err) {
@@ -49,7 +47,7 @@ export class StoresController {
     try {
       const storeId = req.params.storeId;
       const { name, address, category, status } = req.body;
-      const userId = authMiddleware.userId;
+      const { userId } = req.user;
 
       if (!name) {
         throw new ValidationError("음식점 이름은 필수값입니다.");
@@ -61,7 +59,7 @@ export class StoresController {
         throw new ValidationError("업종 카테고리는 필수값입니다.");
       }
 
-      await storesService.createStore(
+      await this.storesService.createStore(
         storeId,
         { name, address, category, status },
         userId
@@ -80,7 +78,7 @@ export class StoresController {
     try {
       const storeId = req.params.storeId;
       const { name, address, category, status } = req.body;
-      const userId = authMiddleware.userId;
+      const { userId } = req.user;
 
       if (!storeId) {
         throw new NotFoundError("수정할 음식점이 존재하지 않습니다.");
@@ -89,12 +87,13 @@ export class StoresController {
         throw new ValidationError("수정할 정보가 존재하지 않습니다.");
       }
 
-      await storesService.updateStore(
+      await this.storesService.updateStore(
         storeId,
         { name, address, category, status },
         userId
       );
 
+      // 상의 하에 상태코드 통일 필요 (200 / 201)
       return res.status(201).json({ data: updateStore });
     } catch (err) {
       next(err);
@@ -104,12 +103,13 @@ export class StoresController {
   // 음식점 삭제
   deleteStore = async (req, res, next) => {
     try {
-      const userId = authMiddleware.userId;
+      const { userId } = req.user;
       const storeId = req.params.storeId;
       const { password } = req.body;
 
-      await storesService.deleteStore(storeId, userId, password);
+      await this.storesService.deleteStore(storeId, userId, password);
 
+      // 상의 하에 상태코드 통일 필요 (200 / 201)
       return res.status(201).json({ data: deleteStore });
     } catch (err) {
       next(err);
