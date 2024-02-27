@@ -24,16 +24,7 @@ export class ReviewService {
       createdAt,
       updatedAt
     );
-    return {
-      userId: createdReview.userId,
-      storeId: createdReview.storeId,
-      orderId: createdReview.orderId,
-      rating: createdReview.rating,
-      content: createdReview.content,
-      image: createdReview.image,
-      createdAt: createdReview.createdAt,
-      updatedAt: createdReview.updatedAt,
-    };
+    return createdReview;
   };
 
   getReview = async (storeId) => {
