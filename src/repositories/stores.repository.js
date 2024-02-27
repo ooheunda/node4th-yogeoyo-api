@@ -34,9 +34,9 @@ export class StoresRepository {
   // 음식점 생성
   createStore = async (data) => {
     await prisma.stores.create({
-        where: {
-            category: category.toLowerCase().find(category)
-        }
+      where: {
+        category: category.toLowerCase().find(category),
+      },
       data,
     });
   };
@@ -46,7 +46,7 @@ export class StoresRepository {
     await prisma.stores.update({
       where: {
         storeId: +storeId,
-        category: category.toLowerCase().find(category)
+        category: category.toLowerCase().find(category),
       },
       data,
     });
