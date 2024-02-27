@@ -6,6 +6,7 @@ let mockReviewRepository = {
   getReview: jest.fn(),
   updateReview: jest.fn(),
   deleteReview: jest.fn(),
+  getReviewId: jest.fn(),
 };
 let reviewService = new ReviewService(mockReviewRepository);
 
@@ -40,50 +41,53 @@ describe("Review Service Unit Test", () => {
 
     const Reviews = await reviewService.getReview();
 
-    // expect(Reviews).toEqual(
-    //   sampleReview.sort((a, b) => {
-    //     return b.createdAt - a.createdAt;
-    //   })
-    // );
     expect(mockReviewRepository.getReview).toHaveBeenCalledTimes(1);
   });
   test("deleteReview Method By Success", async () => {
     const sampleReview = {
+      reviewId: 1,
       userId: 1,
-      storeId: 1,
-      orderId: 1,
-      rating: 4,
-      content: "test",
     };
-    mockReviewRepository.getReview.mockReturnValue(sampleReview);
+    mockReviewRepository.getReviewId.mockReturnValue(sampleReview);
 
-    const deleteReview = await reviewService.deleteReview();
+    const deleteReview = await reviewService.deleteReview(1, 1);
 
-    expect(mockReviewRepository.getReview).toHaveBeenCalledTimes(1);
+    expect(mockReviewRepository.getReviewId).toHaveBeenCalledTimes(1);
     expect(mockReviewRepository.deleteReview).toHaveBeenCalledTimes(1);
 
     expect(deleteReview).toEqual({
+      reviewId: sampleReview.reviewId,
       userId: sampleReview.userId,
-      storeId: sampleReview.storeId,
-      orderId: sampleReview.orderId,
-      rating: sampleReview.rating,
-      content: sampleReview.content,
-      createdAt: sampleReview.createdAt,
-      updatedAt: sampleReview.updatedAt,
     });
   });
   test("deleteReview Method By Not Found Review Error", async () => {
     const sampleReview = null;
 
-    mockReviewRepository.getReview.mockReturnValue(sampleReview);
+    mockReviewRepository.getReviewId.mockReturnValue(sampleReview);
 
     try {
       await reviewService.deleteReview(8888, "1234");
     } catch (error) {
-      expect(mockReviewRepository.getReview).toHaveBeenCalledTimes(1);
-      expect(mockReviewRepository.getReview).toHaveBeenCalledWith(8888);
+      expect(mockReviewRepository.getReviewId).toHaveBeenCalledTimes(1);
+      expect(mockReviewRepository.getReviewId).toHaveBeenCalledWith(8888);
 
-      expect(error.message).toEqual("리뷰 조회에 실패하였습니다");
+      expect(error.message).toEqual("리뷰를 찾을 수 없습니다");
+    }
+  });
+  test("deleteReview Method By UnauthorizedError", async () => {
+    const sampleReview = {
+      userId: 2,
+    };
+
+    mockReviewRepository.getReviewId.mockReturnValue(sampleReview);
+
+    try {
+      await reviewService.deleteReview(1, "1234");
+    } catch (error) {
+      expect(mockReviewRepository.getReviewId).toHaveBeenCalledTimes(1);
+      expect(mockReviewRepository.getReviewId).toHaveBeenCalledWith(1);
+
+      expect(error.message).toEqual("삭제할 권한이 없습니다");
     }
   });
 });

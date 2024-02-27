@@ -32,18 +32,20 @@ describe("Review Repository Unit Test", () => {
     mockPrisma.reviews.create.mockReturnValue(mockReturn);
 
     const createReviewParams = {
-      userId: "createReviewuserId",
-      storeId: "createReviewstoreId",
-      orderId: "createRevieworderId",
-      rating: "createReviewrating",
+      userId: 2,
+      storeId: 1,
+      orderId: 1,
+      rating: 4,
       content: "createReviewcontent",
+      image: "createReviewimage",
     };
     const createReviewData = await reviewRepository.createReview(
       createReviewParams.userId,
       createReviewParams.storeId,
       createReviewParams.orderId,
       createReviewParams.rating,
-      createReviewParams.content
+      createReviewParams.content,
+      createReviewParams.image
     );
     expect(createReviewData).toBe(mockReturn);
 
