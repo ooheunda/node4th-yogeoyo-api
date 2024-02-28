@@ -4,14 +4,14 @@ import { ReviewController } from "../controllers/reviews.controller.js";
 import { ReviewService } from "../services/reviews.service.js";
 import { ReviewRepository } from "../repositories/reviews.repository.js";
 import { StoresRepository } from "../repositories/stores.repository.js";
-import { OrderRepository } from "../repositories/orders.repository.js";
+import { OrdersRepository } from "../repositories/orders.repository.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 import uploadImage from "../middlewares/image.js";
 
 const router = express.Router();
 const reviewRepository = new ReviewRepository(prisma);
 const storeRepository = new StoresRepository(prisma);
-const orderRepository = new OrderRepository(prisma);
+const orderRepository = new OrdersRepository(prisma);
 const reviewService = new ReviewService(
   reviewRepository,
   orderRepository,

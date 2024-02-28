@@ -34,6 +34,11 @@ export default async (req, res, next) => {
 
     switch (err.name) {
       case "TokenExpiredError":
+        if (accessToken)
+          return res
+            .status(400)
+            .json({ message: "토큰 재발급을 한 번 받아보실래요?" });
+
         return res.status(401).json({ message: "토큰이 만료되었습니다." });
 
       case "JsonWebTokenError":
