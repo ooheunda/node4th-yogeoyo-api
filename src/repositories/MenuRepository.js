@@ -22,12 +22,26 @@ export class MenuRepository {
         });
     }
 
-    async updateMenu(menuId, menuData) {
+    async updateMenu(menuId, storeId,
+        name,
+        price,
+        image,
+        stock,
+        category,
+        status) {
         return await this.prisma.menus.update({
             where: {
                 menuId: parseInt(menuId)
             },
-            data: menuData
+            data: {
+                storeId,
+                name,
+                price,
+                image,
+                stock,
+                category,
+                status
+            }
         });
     }
 

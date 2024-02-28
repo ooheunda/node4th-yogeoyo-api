@@ -30,8 +30,8 @@ export const userValidation = {
 
 export const menuValidation = {
   menuSchema: joi.object({
-    price: joi.number().required(),
-    stock: joi.number().required(),
+    price: joi.number(),
+    stock: joi.number(),
     name: joi.string().min(1).max(20),
     category: joi.string().min(1).max(20),
     status: joi.string().min(1).max(20),

@@ -1,7 +1,6 @@
 
-import { ValidationError } from "../utils/common.error.js";
-import { menuValidation } from "../utils/validationSchema.js";
 
+import { menuValidation } from "../utils/validationSchema.js"
 export class MenuController {
     constructor(menuService) {
         this.menuService = menuService;
@@ -28,10 +27,21 @@ export class MenuController {
     async createMenu(req, res, next) {
         try {
             const {
-                menuData,
+                storeId,
+                name,
+                price,
+                stock,
+                category,
+                status,
             } = await menuValidation.menuSchema.validateAsync(req.body);
-
-            const newMenu = await this.menuService.createMenu(menuData);
+            let image = req.file ? req.file.location : undefined;
+            const newMenu = await this.menuService.createMenu(storeId,
+                name,
+                price,
+                image,
+                stock,
+                category,
+                status);
             return res
                 .status(201)
                 .json({ message: "메뉴 등록에 성공하였습니다", data: newMenu });
@@ -45,10 +55,22 @@ export class MenuController {
         try {
             const menuId = req.params.menuId;
             const {
-                menuData,
-            } = await menuValidation.menuSchema.validateAsync(req.body);
+                storeId,
+                name,
+                price,
 
-            const updatedMenu = await this.menuService.updateMenu(menuId, menuData);
+                stock,
+                category,
+                status
+            } = await menuValidation.menuSchema.validateAsync(req.body);
+            let image = req.file ? req.file.location : undefined;
+            const updatedMenu = await this.menuService.updateMenu(menuId, storeId,
+                name,
+                price,
+                image,
+                stock,
+                category,
+                status);
             return res.status(200).json(updatedMenu);
         }
         catch (err) {
