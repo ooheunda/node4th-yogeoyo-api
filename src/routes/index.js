@@ -11,7 +11,7 @@ const router = express.Router();
 router.use("/auth", AuthRouter);
 router.use("/users", UsersRouter);
 router.use("/stores", StoresRouter);
-router.use("/order", OrdersRouter);
+router.use("/orders", OrdersRouter);
 router.use("/menus", MenusRouter);
 router.use("/reviews", ReviewRouter);
 

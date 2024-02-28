@@ -10,7 +10,6 @@ import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-// 역순서대로 해줘야됨
 const ordersRepository = new OrdersRepository(prisma);
 const usersRepository = new UsersRepository(prisma);
 const menuRepository = new MenuRepository(prisma);

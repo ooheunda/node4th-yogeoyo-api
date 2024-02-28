@@ -1,4 +1,4 @@
-import { ValidationError } from "../utils/common.error.js";
+import { UnauthorizedError, ValidationError } from "../utils/common.error.js";
 import { userValidation } from "../utils/validationSchema.js";
 
 export class AuthController {
@@ -72,6 +72,11 @@ export class AuthController {
   getNewTokens = async (req, res, next) => {
     try {
       const { refreshToken } = req.cookies;
+      if (!refreshToken)
+        throw new UnauthorizedError(
+          "재발급에 필요한 토큰이 존재하지 않습니다."
+        );
+
       const [newAccessToken, newRefreshToken] =
         await this.authService.getNewTokens(refreshToken);
 

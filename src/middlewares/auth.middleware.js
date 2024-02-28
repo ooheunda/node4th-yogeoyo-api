@@ -6,7 +6,7 @@ export default async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = req.cookies;
     if (!accessToken && !refreshToken)
-      throw new UnauthorizedError("로그인이 필요합니다.");
+      return res.status(401).json({ message: "로그인이 필요합니다." });
     if (!accessToken && refreshToken)
       return res
         .status(400)
