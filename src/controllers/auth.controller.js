@@ -68,20 +68,27 @@ export class AuthController {
     }
   };
 
-  // 액세스 토큰 재발급 (미들웨어에서 리다이렉트하는 방식으로만 접근됩니다.)
+  // 토큰 재발급
   getNewTokens = async (req, res, next) => {
     try {
       const { refreshToken } = req.cookies;
-
       const [newAccessToken, newRefreshToken] =
         await this.authService.getNewTokens(refreshToken);
 
       res.cookie("accessToken", `Bearer ${newAccessToken}`);
       res.cookie("refreshToken", `Bearer ${newRefreshToken}`);
 
-      return res.status(200).json({ message: "요청을 다시 시도해주세요." });
+      return res
+        .status(200)
+        .json({ message: "토큰 재발급이 완료 되었습니다." });
     } catch (err) {
       res.clearCookie("refreshToken");
+      switch (err.name) {
+        case "TokenExpiredError":
+          return res.status(401).json({ message: "토큰이 만료되었습니다." });
+        case "JsonWebTokenError":
+          return res.status(401).json({ message: "토큰이 조작되었습니다." });
+      }
       next(err);
     }
   };

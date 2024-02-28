@@ -1,12 +1,16 @@
 import { verifyAccessToken } from "../utils/jwtFunc.js";
 import { prisma } from "../utils/prisma.client.js";
-import { NotFoundError } from "../utils/common.error.js";
+import { NotFoundError, UnauthorizedError } from "../utils/common.error.js";
 
 export default async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = req.cookies;
-    if (!accessToken && !refreshToken) throw new Error("로그인이 필요합니다.");
-    if (!accessToken && refreshToken) return res.redirect("/auth/tokens");
+    if (!accessToken && !refreshToken)
+      throw new UnauthorizedError("로그인이 필요합니다.");
+    if (!accessToken && refreshToken)
+      return res
+        .status(400)
+        .json({ message: "토큰 재발급을 한 번 받아보실래요?" });
 
     const decodedToken = verifyAccessToken(accessToken);
     const userId = decodedToken.userId;
@@ -30,7 +34,7 @@ export default async (req, res, next) => {
 
     switch (err.name) {
       case "TokenExpiredError":
-        return res.redirect("/auth/tokens");
+        return res.status(401).json({ message: "토큰이 만료되었습니다." });
 
       case "JsonWebTokenError":
         return res.status(401).json({ message: "토큰이 조작되었습니다." });

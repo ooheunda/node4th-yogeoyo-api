@@ -6,7 +6,6 @@ import StoresRouter from "../routes/stores.router.js";
 const router = express.Router();
 
 router.use("/auth", AuthRouter);
-router.use("/user", UsersRouter);
+router.use("/users", UsersRouter);
 router.use("/stores", StoresRouter);
-
 export default router;
