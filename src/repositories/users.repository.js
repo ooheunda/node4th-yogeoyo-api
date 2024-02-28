@@ -31,19 +31,20 @@ export class UsersRepository {
     return newUser;
   };
 
-  updateUser = async (userId, email, password, name, address, role) => {
-    await this.prisma.users.update({
+  updateUserInfo = async (userId, data) => {
+    const updatedUser = await this.prisma.users.update({
       where: {
-        userid: +userId,
+        userId: +userId,
       },
       data: {
-        email,
-        password,
-        name,
-        address,
-        role,
+        password: data.password,
+        name: data.name,
+        address: data.address,
+        role: data.role,
       },
     });
+
+    return updatedUser;
   };
 
   deleteUser = async (userId) => {
@@ -51,6 +52,13 @@ export class UsersRepository {
       where: {
         userId: +userId,
       },
+    });
+  };
+
+  verifyUserRole = async (userId, role) => {
+    await this.prisma.users.update({
+      where: { userId: +userId },
+      data: { role },
     });
   };
 }

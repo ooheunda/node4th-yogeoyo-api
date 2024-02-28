@@ -9,14 +9,8 @@ export class AuthController {
   // 회원가입
   userSignUp = async (req, res, next) => {
     try {
-      const {
-        email,
-        password,
-        passwordConfirm,
-        name,
-        address,
-        role = "user",
-      } = await userValidation.signUpSchema.validateAsync(req.body);
+      const { email, password, passwordConfirm, name, address, role } =
+        await userValidation.signUpSchema.validateAsync(req.body);
 
       if (password !== passwordConfirm)
         throw new ValidationError(
@@ -59,5 +53,57 @@ export class AuthController {
   };
 
   // 로그아웃
-  userSignOut = async (req, res, next) => {};
+  userSignOut = async (req, res, next) => {
+    try {
+      const { userId } = req.user;
+
+      await this.authService.userSignOut(userId);
+
+      res.clearCookie("accessToken");
+      res.clearCookie("refreshToken");
+
+      return res.status(200).json({ message: "로그아웃 되었습니다." });
+    } catch (err) {
+      next(err);
+    }
+  };
+
+  // 토큰 재발급
+  getNewTokens = async (req, res, next) => {
+    try {
+      const { refreshToken } = req.cookies;
+      const [newAccessToken, newRefreshToken] =
+        await this.authService.getNewTokens(refreshToken);
+
+      res.cookie("accessToken", `Bearer ${newAccessToken}`);
+      res.cookie("refreshToken", `Bearer ${newRefreshToken}`);
+
+      return res
+        .status(200)
+        .json({ message: "토큰 재발급이 완료 되었습니다." });
+    } catch (err) {
+      res.clearCookie("refreshToken");
+      switch (err.name) {
+        case "TokenExpiredError":
+          return res.status(401).json({ message: "토큰이 만료되었습니다." });
+        case "JsonWebTokenError":
+          return res.status(401).json({ message: "토큰이 조작되었습니다." });
+      }
+      next(err);
+    }
+  };
+
+  verifyEmail = async (req, res, next) => {
+    try {
+      const { token } = req.params;
+
+      await this.authService.verifyEmail(token);
+
+      return res
+        .status(200)
+        .json({ message: "인증이 완료되었습니다. 로그인 하세요." });
+    } catch (err) {
+      next(err);
+    }
+  };
 }

@@ -15,10 +15,11 @@
     "test:unit": "cross-env NODE_ENV=test NODE_OPTIONS=--experimental-vm-modules jest __tests__/unit --forceExit"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.523.0",
+    "@aws-sdk/client-s3": "^3.521.0",
     "@prisma/client": "^5.10.2",
     "add": "^2.0.6",
     "bcrypt": "^5.1.1",
+    "connect-redis": "^7.1.1",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
@@ -26,9 +27,10 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "multer-s3": "^3.0.1",
+    "nodemailer": "^6.9.10",
     "prisma": "^5.10.2",
-    "winston": "^3.11.0",
-    "yarn": "^1.22.21"
+    "redis": "^4.6.13",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
