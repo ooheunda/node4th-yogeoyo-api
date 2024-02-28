@@ -1,4 +1,8 @@
-import { UnauthorizedError, NotFoundError } from "../utils/common.error.js";
+import {
+  UnauthorizedError,
+  NotFoundError,
+  ValidationError,
+} from "../utils/common.error.js";
 
 export class StoresService {
   constructor(storesRepository) {
@@ -18,26 +22,81 @@ export class StoresService {
   };
 
   // 음식점 생성
-  createStore = async ({ name, address, category, status }) => {
-    await this.storesRepository.createStore({
+  createStore = async (userId, name, address, category, status) => {
+    const enumCategory = [
+      "chicken",
+      "pizza",
+      "burger",
+      "salad",
+      "korean_food",
+      "japanese_food",
+      "chinese_food",
+      "snack_bar",
+      "cafe",
+      "etc",
+    ];
+    const enumStatus = ["opened", "closed"];
+
+    console.log(status);
+    if (!enumCategory.includes(category)) {
+      throw new ValidationError("유효하지 않은 카테고리입니다.");
+    }
+    if (!enumStatus.includes(status)) {
+      throw new ValidationError("유효하지 않은 상태입니다.");
+    }
+    // if (!status) {
+    //   return (createStore.status = "opened");
+    // }
+
+    const createdStore = await this.storesRepository.createStore({
+      userId,
       name,
       address,
       category,
       status,
     });
+
+    return createdStore;
   };
 
   // 음식점 수정
-  updateStore = async (storeId, data, userId) => {
+  updateStore = async (storeId, userId, name, address, category, status) => {
     const store = await this.storesRepository.findOneStore(storeId);
 
     // res는 컨트롤러에서 사용하는 것이기 때문에 throw로 변경
     if (!store) {
       throw new NotFoundError("존재하지 않는 음식점입니다.");
     }
+    const enumCategory = [
+      "chicken",
+      "pizza",
+      "burger",
+      "salad",
+      "korean_food",
+      "japanese_food",
+      "chinese_food",
+      "snack_bar",
+      "cafe",
+      "etc",
+    ];
+    const enumStatus = ["opened", "closed"];
 
-    const { name, address, category, status } = data;
-    await this.storesRepository.updateStore(storeId, data);
+    if (!enumCategory.includes(category)) {
+      throw new ValidationError("유효하지 않은 카테고리입니다.");
+    }
+    if (!enumStatus.includes(status)) {
+      throw new ValidationError("유효하지 않은 상태입니다.");
+    }
+    return await this.storesRepository.updateStore(
+      storeId,
+      userId,
+      name,
+      address,
+      category,
+      status
+    );
+
+    // return store;
   };
 
   // 음식점 삭제

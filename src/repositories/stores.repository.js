@@ -23,7 +23,7 @@ export class StoresRepository {
         storeId: +storeId,
       },
       select: {
-        storeId: true,
+        name: true,
         address: true,
         status: true,
         category: true,
@@ -35,38 +35,39 @@ export class StoresRepository {
   };
 
   // 음식점 생성
-  createStore = async (userId, storeId, name, address, category, status) => {
-    await this.prisma.stores.create({
-      userId: +userId,
-      storeId: +storeId,
-      name,
-      address,
-      category: category.toLowerCase().find(category),
-      status: status.toLowerCase().find(status),
+  createStore = async (userId, name, address, category, status) => {
+    console.log(status); // undefined
+    const createdStore = await this.prisma.stores.create({
+      data: {
+        userId: +userId,
+        name,
+        address,
+        category: category.toLowerCase(),
+        status: status.toLowerCase(),
+      },
     });
 
-    return createStore;
+    return createdStore;
   };
-  // find 메서드는 enum 값 검증하려고 넣었습니다!
-  // 서비스에 넣을지 레포에 넣을지 헷갈렸는데 팀원분들이 각각 흩어져 계실 때라 튜터님께 여쭤봤습니다
-  // 기주튜터님 왈: 프로젝트 규모가 커지면 저장소 레벨에서 코드를 참조할 일이 많아지기 때문에 그런 부분을 고려한다면 이 경우는 레포에서 검사하는게 좀더 적합함
 
   // 음식점 수정
-  updateStore = async (userId, storeId, name, address, category, status) => {
-    await this.prisma.stores.update({
-      userId: +userId,
-      storeId: +storeId,
-      name,
-      address,
-      category: category.toLowerCase().find(category),
-      status: status.toLowerCase().find(status),
+  updateStore = async (storeId, userId, name, address, category, status) => {
+    const updatedStore = await this.prisma.stores.update({
+      where: { storeId: +storeId },
+      data: {
+        userId: +userId,
+        name,
+        address,
+        category: category.toLowerCase(),
+        status: status.toLowerCase(),
+      },
     });
 
-    return updateStore;
+    return updatedStore;
   };
 
   // 음식점 삭제
-  deleteStore = async (storeId) => {
+  deleteStore = async (storeId, password) => {
     await this.prisma.stores.delete({
       where: {
         storeId: +storeId,
@@ -74,6 +75,6 @@ export class StoresRepository {
       password,
     });
 
-    return deleteStore;
+    return { message: "음식점이 삭제되었습니다." };
   };
 }

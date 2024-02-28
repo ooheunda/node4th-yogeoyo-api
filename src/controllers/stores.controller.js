@@ -45,10 +45,9 @@ export class StoresController {
   // 음식점 생성
   createStore = async (req, res, next) => {
     try {
-      const storeId = req.params.storeId;
       const { name, address, category, status } = req.body;
       const { userId } = req.user;
-
+      console.log(status);
       if (!name) {
         throw new ValidationError("음식점 이름은 필수값입니다.");
       }
@@ -58,16 +57,21 @@ export class StoresController {
       if (!category) {
         throw new ValidationError("업종 카테고리는 필수값입니다.");
       }
-
-      await this.storesService.createStore(
-        storeId,
-        { name, address, category, status },
-        userId
+      if (!status) {
+        throw new ValidationError("음식점 상태는 필수값입니다.");
+      }
+      const createdStore = await this.storesService.createStore(
+        userId,
+        name,
+        address,
+        category,
+        status
       );
 
-      return res
-        .status(201)
-        .json({ message: "음식점 생성이 완료되었습니다.", data: { storeId } });
+      return res.status(201).json({
+        message: "음식점 생성이 완료되었습니다.",
+        data: createdStore,
+      });
     } catch (err) {
       next(err);
     }
@@ -87,14 +91,19 @@ export class StoresController {
         throw new ValidationError("수정할 정보가 존재하지 않습니다.");
       }
 
-      await this.storesService.updateStore(
+      await this.storesService.updateStore({
         storeId,
-        { name, address, category, status },
-        userId
-      );
+        userId,
+        name,
+        address,
+        category,
+        status,
+      });
 
       // 상의 하에 상태코드 통일 필요 (200 / 201)
-      return res.status(201).json({ data: updateStore });
+      return res.status(201).json({
+        message: "음식점 생성이 완료되었습니다.",
+      });
     } catch (err) {
       next(err);
     }
@@ -110,7 +119,7 @@ export class StoresController {
       await this.storesService.deleteStore(storeId, userId, password);
 
       // 상의 하에 상태코드 통일 필요 (200 / 201)
-      return res.status(201).json({ data: deleteStore });
+      // return res.status(201).json({ data: deleteStore });
     } catch (err) {
       next(err);
     }
