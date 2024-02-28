@@ -1,4 +1,8 @@
-import { NotFoundError, UnauthorizedError } from "../utils/common.error.js";
+import {
+  NotFoundError,
+  ValidationError,
+  UnauthorizedError,
+} from "../utils/common.error.js";
 import bcrypt from "bcrypt";
 
 export class UsersService {
@@ -24,6 +28,9 @@ export class UsersService {
   updateUserInfo = async (userId, data) => {
     if (data.role && !["user", "owner"].includes(data.role))
       throw new ValidationError("권한은 user, owner 중 하나여야 합니다.");
+    if (data.role && data.role === "owner") {
+      data.point = 0;
+    }
 
     if (data.password) {
       data.password = await bcrypt.hash(
