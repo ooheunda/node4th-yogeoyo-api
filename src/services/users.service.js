@@ -19,18 +19,22 @@ export class UsersService {
       user.userId
     );
 
-    user.point = user.role === "user" ? rawPoint._sum.howMuch : 0;
+    user.point = rawPoint ? rawPoint._sum.howMuch : 0;
     delete user.password;
 
     return user;
   };
 
-  updateUserInfo = async (userId, data) => {
+  updateUserInfo = async (user, data) => {
     if (data.role && !["user", "owner"].includes(data.role))
       throw new ValidationError("권한은 user, owner 중 하나여야 합니다.");
-    if (data.role && data.role === "owner") {
-      data.point = 0;
-    }
+
+    if (user.role === "user" && data.role === "owner")
+      await this.pointsRepository.addPointHistory(
+        user.userId,
+        -1000000,
+        "권한 변경"
+      );
 
     if (data.password) {
       data.password = await bcrypt.hash(
@@ -38,7 +42,11 @@ export class UsersService {
         +process.env.BCRYPT_SALT
       );
     }
-    const updatedUser = await this.usersRepository.updateUserInfo(userId, data);
+
+    const updatedUser = await this.usersRepository.updateUserInfo(
+      user.userId,
+      data
+    );
     delete updatedUser.password;
 
     return updatedUser;

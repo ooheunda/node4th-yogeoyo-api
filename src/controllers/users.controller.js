@@ -22,7 +22,6 @@ export class UsersController {
   // 유저 정보 업데이트
   updateUserInfo = async (req, res, next) => {
     try {
-      const { userId } = req.user;
       const { password, passwordConfirm, name, address, role } =
         await userValidation.userUpdateSchema.validateAsync(req.body);
 
@@ -34,7 +33,7 @@ export class UsersController {
       if (!password && !name && !address && !role)
         throw new ValidationError("수정할 데이터를 입력해주세요.");
 
-      const updatedUser = await this.usersService.updateUserInfo(userId, {
+      const updatedUser = await this.usersService.updateUserInfo(user, {
         password,
         name,
         address,

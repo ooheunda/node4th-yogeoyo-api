@@ -6,8 +6,8 @@ export class OrdersRepository {
   createOrders = async (userId, storeId, status, request, totalPrice) => {
     const createdOrders = await this.prisma.orders.create({
       data: {
-        user: { connect: { userId: userId } },
-        store: { connect: { storeId: +storeId } },
+        userId: +userId,
+        storeId: +storeId,
         status,
         request,
         totalPrice,
@@ -33,5 +33,20 @@ export class OrdersRepository {
       data: { status },
     });
     return updatedOrders;
+  };
+
+  getOrderByUserId = async (userId) => {
+    return await this.prisma.orders.findMany({ where: { userId: +userId } });
+  };
+
+  getOrderByStoreId = async (storeId) => {
+    return await this.prisma.orders.findMany({ where: { storeId: +storeId } });
+  };
+
+  updateOrderStatus = async (orderId) => {
+    await this.prisma.orders.update({
+      where: { orderId: +orderId },
+      data: { status: "complete" },
+    });
   };
 }

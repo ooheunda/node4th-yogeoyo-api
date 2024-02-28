@@ -1,65 +1,66 @@
+import {
+  ConflictError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../utils/common.error.js";
+
 export class OrdersService {
   constructor(
     ordersRepository,
     usersRepository,
     pointsRepository,
     menuRepository,
-    orderItemsRepository
+    orderItemsRepository,
+    storesRepository
   ) {
     this.ordersRepository = ordersRepository;
     this.usersRepository = usersRepository;
     this.pointsRepository = pointsRepository;
     this.menuRepository = menuRepository;
     this.orderItemsRepository = orderItemsRepository;
+    this.storesRepository = storesRepository;
   }
 
-  createOrders = async (userId, storeId, request, menus) => {
-    if (!storeId) {
-      throw new Error("주문정보가 올바르지 않습니다.");
-    }
+  createOrders = async (user, storeId, request, menus) => {
+    if (user.role !== "user")
+      throw new UnauthorizedError("음식 주문 권한이 없습니다.");
 
-    // 포인트에서 - 메뉴*수량 = totalPrice
-    let totalPrice = 0; // 체크
-    for (const menu of menus) {
-      const { menuId, quantity } = menu;
+    let totalPrice = 0;
+    for (let i = 0; i < menus.length; i++) {
+      const { menuId, quantity } = menus[i];
 
       const menuInfo = await this.menuRepository.getMenuById(menuId);
 
       if (!menuInfo) {
-        throw new Error("메뉴 정보가 올바르지 않습니다.");
+        throw new NotFoundError("존재하지 않는 메뉴입니다.");
       }
+
       totalPrice += menuInfo.price * quantity;
     }
 
-    const points = await this.pointsRepository.addPointHistory(
-      userId,
-      // orderId,
-      "음식 주문",
-      -totalPrice
+    const curPoint = await this.pointsRepository.getSumOfUserPoints(
+      user.userId
     );
-
-    if (!points) {
-      throw new Error("포인트가 없습니다.");
+    if (curPoint[0]._sum.howMuch < totalPrice) {
+      throw new ConflictError(" 포인트가 부족합니다.");
     }
 
-    const status = "accepted";
-
-    const remainPoints = await this.pointsRepository.getSumOfUserPoints(userId);
-    if (remainPoints[0]._sum.howMuch < 0) {
-      throw new Error(" 포인트가 부족합니다.");
-    }
-
-    console.log(remainPoints[0]._sum.howMuch);
-    const createdOrders = await this.ordersRepository.createOrders(
-      userId,
+    const order = await this.ordersRepository.createOrders(
+      user.userId,
       storeId,
-      status,
+      "accepted",
       request,
-      totalPrice,
-      remainPoints[0]._sum.howMuch
+      totalPrice
     );
 
-    return { remainPoint: remainPoints[0]._sum.howMuch, ...createdOrders };
+    await this.pointsRepository.addPointHistory(
+      user.userId,
+      -totalPrice,
+      "음식 주문",
+      order.orderId
+    );
+
+    return { remainPoint: curPoint[0]._sum.howMuch - totalPrice, data: order };
   };
 
   findOrdersById = async (orderId) => {
@@ -98,5 +99,44 @@ export class OrdersService {
       orderId: updatedOrders.orderId,
       status: updatedOrders.status,
     };
+  };
+
+  getOrderData = async (user) => {
+    const orderList = {};
+    if (user.role === "user") {
+      orderList.push(
+        await this.ordersRepository.getOrdersByUserId(user.userId)
+      );
+    } else if (user.role === "owner") {
+      const store = await this.storesRepository.findStoreByUserId(user.userId);
+      if (!store) throw new NotFoundError("보유중인 음식점이 없습니다.");
+
+      orderList.push(
+        await this.ordersRepository.getOrdersByStoreId(store.storeId)
+      );
+    }
+
+    return orderList;
+  };
+
+  updateOrderStatus = async (orderId, user) => {
+    const order = await this.ordersRepository.findOrdersById(orderId);
+    if (!order) throw new NotFoundError("주문이 존재하지 않습니다.");
+
+    const store = await this.storesRepository.findStoreByUserId(user.userId);
+
+    if (user.role !== "owner" || order.storeId !== store.storeId)
+      throw new UnauthorizedError("권한이 없습니다.");
+
+    await this.ordersRepository.updateOrderStatus(orderId);
+    await this.pointsRepository.addPointHistory(
+      user.userId,
+      order.totalPrice,
+      "배달 완료"
+    );
+
+    const point = await this.pointsRepository.getSumOfUserPoints(user.userId);
+
+    return point[0]._sum.howMuch;
   };
 }

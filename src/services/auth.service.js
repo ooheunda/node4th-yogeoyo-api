@@ -73,7 +73,7 @@ export class AuthService {
     const [rawPoint] = await this.pointsRepository.getSumOfUserPoints(
       user.userId
     );
-    const point = user.role === "user" ? rawPoint._sum.howMuch : 0;
+    const point = rawPoint ? rawPoint._sum.howMuch : 0;
 
     const accessToken = generateAccessToken(user.userId);
     const refreshToken = await generateRefreshToken(user.userId);

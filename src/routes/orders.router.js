@@ -28,7 +28,13 @@ router.post("/:storeId", authMiddleware, ordersController.createOrders);
 // 주문 확인
 router.get("/:orderId", authMiddleware, ordersController.getOrder);
 
+// 주문 목록 조회
+router.get("/", authMiddleware, ordersController.getOrderList);
+
+// 사장님 배달 완료
+router.patch("/:orderId", authMiddleware, ordersController.updateOrderStatus);
+
 // 주문 완료
-router.put("/:orderId", authMiddleware, ordersController.updateOrders);
+// router.put("/:orderId", authMiddleware, ordersController.updateOrders);
 
 export default router;

@@ -1,48 +1,46 @@
+import { ConflictError } from "../utils/common.error.js";
 
 export class MenuService {
-    constructor(menuRepository) {
-        this.menuRepository = menuRepository;
+  constructor(menuRepository) {
+    this.menuRepository = menuRepository;
+  }
 
-    }
-    async getAllMenus() {
-        return await this.menuRepository.getAllMenus();
-    }
+  getAllMenus = async () => {
+    return await this.menuRepository.getAllMenus();
+  };
 
-    async getMenuById(menuId) {
-        return await this.menuRepository.getMenuById(menuId);
-    }
+  getMenuById = async (menuId) => {
+    return await this.menuRepository.getMenuById(menuId);
+  };
 
-    async createMenu(storeId,
-        stock,
-        status,
-        price,
-        name,
-        image,
-        category) {
-        return await this.menuRepository.createMenu(storeId,
-            stock,
-            status,
-            price,
-            name,
-            image,
-            category);
-    }
+  createMenu = async (storeId, stock, status, price, name, image, category) => {
+    const isExistMenu = await this.menuRepository.findMenuByName(storeId, name);
 
-    async updateMenu(menuId, stock,
-        status,
-        price,
-        name,
-        image,
-        category) {
-        return await this.menuRepository.updateMenu(menuId, stock,
-            status,
-            price,
-            name,
-            image,
-            category);
-    }
+    if (isExistMenu) throw new ConflictError("이미 존재하는 메뉴입니다.");
+    return await this.menuRepository.createMenu({
+      storeId,
+      stock,
+      status,
+      price,
+      name,
+      image,
+      category,
+    });
+  };
 
-    async deleteMenu(menuId) {
-        return await this.menuRepository.deleteMenu(menuId);
-    }
+  updateMenu = async (menuId, stock, status, price, name, image, category) => {
+    return await this.menuRepository.updateMenu({
+      menuId,
+      stock,
+      status,
+      price,
+      name,
+      image,
+      category,
+    });
+  };
+
+  deleteMenu = async (menuId) => {
+    return await this.menuRepository.deleteMenu(menuId);
+  };
 }
