@@ -10,7 +10,7 @@ export class StoresRepository {
         status: true,
         createdAt: true,
       },
-      orderBy: [{ [sort.orderKey]: orderValue }],
+      orderBy: [{ [sort.orderKey]: sort.orderValue }],
     });
 
     return stores;
@@ -19,8 +19,12 @@ export class StoresRepository {
   // 음식점 상세 조회
   findOneStore = async (storeId) => {
     const store = await this.prisma.stores.findUnique({
+      where: {
+        storeId: +storeId,
+      },
       select: {
         storeId: true,
+        address: true,
         status: true,
         category: true,
         createdAt: true,
@@ -67,6 +71,7 @@ export class StoresRepository {
       where: {
         storeId: +storeId,
       },
+      password,
     });
 
     return deleteStore;
