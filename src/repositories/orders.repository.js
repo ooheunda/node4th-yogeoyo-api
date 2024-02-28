@@ -3,20 +3,14 @@ export class OrdersRepository {
     this.prisma = prisma;
   }
 
-  createOrders = async (
-    userId,
-    storeId,
-    request,
-    totalPrice,
-    currentPoints
-  ) => {
+  createOrders = async (userId, storeId, status, request, totalPrice) => {
     const createdOrders = await this.prisma.orders.create({
       data: {
-        userId,
-        storeId,
+        user: { connect: { userId: userId } },
+        store: { connect: { storeId: +storeId } },
+        status,
         request,
         totalPrice,
-        currentPoints,
       },
     });
 
@@ -24,7 +18,7 @@ export class OrdersRepository {
   };
 
   findOrdersById = async (orderId) => {
-    const order = await this.prisma.orders.findUnique({
+    const order = await this.prisma.orders.findFirst({
       where: {
         orderId: +orderId,
       },
@@ -33,13 +27,9 @@ export class OrdersRepository {
     return order;
   };
 
-  updateOrders = async (orderId, status) => {
-    // if (!Object.values(OrderStatus).includes(status)) {
-    //   throw new Error("유효하지 않은 주문 상태입니다.");
-    // }
-
+  updateOrders = async (userId, orderId, status) => {
     const updatedOrders = await this.prisma.orders.update({
-      where: { orderId: +orderId },
+      where: { userId: +userId, orderId: +orderId },
       data: { status },
     });
     return updatedOrders;

@@ -12,7 +12,7 @@ router.post("/", orderItemsController.createOrderItems);
 router.get("/", orderItemsController.getOrderItem);
 
 // 장바구니 수량 변경
-router.put("/", orderItemsController.updateOrderItmes);
+router.put("/", orderItemsController.updateOrderItems);
 
 // 장바구니 특정상품 제거
 router.delete("/", orderItemsController.deleteOrderItems);

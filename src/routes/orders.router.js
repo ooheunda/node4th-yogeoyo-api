@@ -5,6 +5,7 @@ import { OrdersService } from "../services/orders.service.js";
 import { OrdersRepository } from "../repositories/orders.repository.js";
 import { UsersRepository } from "../repositories/users.repository.js";
 import { PointsRepository } from "../repositories/points.repository.js";
+import { MenuRepository } from "../repositories/menus.repository.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -12,21 +13,23 @@ const router = express.Router();
 // 역순서대로 해줘야됨
 const ordersRepository = new OrdersRepository(prisma);
 const usersRepository = new UsersRepository(prisma);
+const menuRepository = new MenuRepository(prisma);
 const pointsRepository = new PointsRepository(prisma);
 const ordersService = new OrdersService(
   ordersRepository,
   usersRepository,
-  pointsRepository
+  pointsRepository,
+  menuRepository
 );
 const ordersController = new OrdersController(ordersService);
 
 // 주문
-router.post("/", authMiddleware, ordersController.createOrders);
+router.post("/:storeId", authMiddleware, ordersController.createOrders);
 
 // 주문 확인
-router.get("/", authMiddleware, ordersController.getOrder);
+router.get("/:orderId", authMiddleware, ordersController.getOrder);
 
 // 주문 완료
-router.put("/", authMiddleware, ordersController.updateOrders);
+router.put("/:orderId", authMiddleware, ordersController.updateOrders);
 
 export default router;

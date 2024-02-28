@@ -40,12 +40,12 @@ export class OrderItemsController {
   };
 
   // 주문항목 수량변경
-  updateOrderItmes = async (req, res, next) => {
+  updateOrderItems = async (req, res, next) => {
     try {
       const { orderId } = req.params;
       const { quantity } = req.body;
 
-      const updatedOrderItems = await this.orderItemsService.updateOrderItmes(
+      const updatedOrderItems = await this.orderItemsService.updateOrderItems(
         orderId,
         quantity
       );

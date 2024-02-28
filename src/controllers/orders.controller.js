@@ -9,14 +9,12 @@ export class OrdersController {
       const { request, menus } = req.body;
       const { storeId } = req.params;
       const { userId } = req.user;
-      console.log(request);
-      console.log(menus);
 
       const createdOrders = await this.ordersService.createOrders(
         userId,
         storeId,
-        menus,
-        request
+        request,
+        menus
       );
 
       return res.status(200).json({ data: createdOrders });
@@ -45,16 +43,8 @@ export class OrdersController {
       const { orderId } = req.params;
       const { status } = req.body;
 
-      // 사장권한 찾기 맞는지??
-      const user = await this.userRepository.getUserById(userId);
-      const role = user.role;
-
-      // 사장권한
-      if (role !== "owner") {
-        return res.status(400).json({ message: "사장님이 아닙니다." });
-      }
-
       const updatedOrders = await this.ordersService.updateOrders(
+        userId,
         orderId,
         status
       );
