@@ -5,18 +5,16 @@ export class ReviewController {
   }
   createReview = async (req, res, next) => {
     try {
-      const { content, rating } = req.body;
+      const { orderId } = req.params;
       const { userId } = req.user;
-      const { storeId, orderId } = req.params;
+      const { content, rating } = req.body;
+
       if (!content || !rating)
         throw new ValidationError("content와 rating의 값을 입력해주세요");
 
-      if (!storeId || !orderId) throw new ValidationError("InvalidParamsError");
-      let image = null;
-      if (req.file) image = req.file.location;
+      let image = req.file ? req.file.location : undefined;
       const createdReview = await this.reviewService.createReview(
         userId,
-        storeId,
         orderId,
         rating,
         content,
@@ -40,19 +38,16 @@ export class ReviewController {
 
   updateReview = async (req, res, next) => {
     try {
-      const { content, rating } = req.body;
+      const { rating, content } = req.body;
       const { userId } = req.user;
-      const { reviewId, storeId } = req.params;
-      const image = req.file;
+      const { reviewId } = req.params;
 
+      let image = req.file ? req.file.location : undefined;
       if (!content || !rating)
         throw new ValidationError("content와 rating의 값을 입력해주세요");
 
-      if (!storeId) throw new ValidationError("InvalidParamsError");
-
-      const updatedReview = await this.reviewService.updateReview(
+      await this.reviewService.updateReview(
         reviewId,
-        storeId,
         userId,
         rating,
         content,
