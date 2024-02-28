@@ -1,11 +1,12 @@
 import { verifyAccessToken } from "../utils/jwtFunc.js";
 import { prisma } from "../utils/prisma.client.js";
-import { NotFoundError } from "../utils/common.error.js";
+import { NotFoundError, UnauthorizedError } from "../utils/common.error.js";
 
 export default async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = req.cookies;
-    if (!accessToken && !refreshToken) throw new Error("로그인이 필요합니다.");
+    if (!accessToken && !refreshToken)
+      throw new UnauthorizedError("로그인이 필요합니다.");
     if (!accessToken && refreshToken) return res.redirect("/auth/tokens");
 
     const decodedToken = verifyAccessToken(accessToken);
