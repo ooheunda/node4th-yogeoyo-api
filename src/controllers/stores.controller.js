@@ -1,4 +1,8 @@
-import { ValidationError, NotFoundError } from "../utils/common.error.js";
+import {
+  ValidationError,
+  NotFoundError,
+  UnauthorizedError,
+} from "../utils/common.error.js";
 
 export class StoresController {
   constructor(storesService) {
@@ -47,7 +51,10 @@ export class StoresController {
     try {
       const { name, address, category, status } = req.body;
       const { userId } = req.user;
-      console.log(status);
+
+      if (req.user.role !== "owner")
+        throw new UnauthorizedError("음식점 생성 권한이 없습니다.");
+
       if (!name) {
         throw new ValidationError("음식점 이름은 필수값입니다.");
       }
@@ -60,6 +67,7 @@ export class StoresController {
       if (!status) {
         throw new ValidationError("음식점 상태는 필수값입니다.");
       }
+
       const createdStore = await this.storesService.createStore(
         userId,
         name,
@@ -80,29 +88,24 @@ export class StoresController {
   // 음식점 수정
   updateStore = async (req, res, next) => {
     try {
-      const storeId = req.params.storeId;
       const { name, address, category, status } = req.body;
       const { userId } = req.user;
 
-      if (!storeId) {
-        throw new NotFoundError("수정할 음식점이 존재하지 않습니다.");
-      }
-      if (!name && !address && !category) {
+      if (!name && !address && !category && !status) {
         throw new ValidationError("수정할 정보가 존재하지 않습니다.");
       }
 
-      await this.storesService.updateStore({
-        storeId,
+      const updatedStore = await this.storesService.updateStore(
         userId,
         name,
         address,
         category,
-        status,
-      });
+        status
+      );
 
-      // 상의 하에 상태코드 통일 필요 (200 / 201)
-      return res.status(201).json({
-        message: "음식점 생성이 완료되었습니다.",
+      return res.status(200).json({
+        message: "음식점 수정이 완료되었습니다.",
+        data: updatedStore,
       });
     } catch (err) {
       next(err);
@@ -112,14 +115,11 @@ export class StoresController {
   // 음식점 삭제
   deleteStore = async (req, res, next) => {
     try {
-      const { userId } = req.user;
-      const storeId = req.params.storeId;
       const { password } = req.body;
 
-      await this.storesService.deleteStore(storeId, userId, password);
+      await this.storesService.deleteStore(req.user, password);
 
-      // 상의 하에 상태코드 통일 필요 (200 / 201)
-      // return res.status(201).json({ data: deleteStore });
+      return res.status(201).json({ message: "음식점 삭제가 완료되었습니다." });
     } catch (err) {
       next(err);
     }

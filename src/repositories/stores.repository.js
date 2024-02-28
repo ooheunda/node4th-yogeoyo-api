@@ -7,6 +7,8 @@ export class StoresRepository {
     const stores = await this.prisma.stores.findMany({
       select: {
         storeId: true,
+        name: true,
+        category: true,
         status: true,
         createdAt: true,
       },
@@ -22,13 +24,6 @@ export class StoresRepository {
       where: {
         storeId: +storeId,
       },
-      select: {
-        name: true,
-        address: true,
-        status: true,
-        category: true,
-        createdAt: true,
-      },
     });
 
     return store;
@@ -36,14 +31,13 @@ export class StoresRepository {
 
   // 음식점 생성
   createStore = async (userId, name, address, category, status) => {
-    console.log(status); // undefined
     const createdStore = await this.prisma.stores.create({
       data: {
         userId: +userId,
         name,
         address,
-        category: category.toLowerCase(),
-        status: status.toLowerCase(),
+        category: category,
+        status: status,
       },
     });
 
@@ -51,15 +45,14 @@ export class StoresRepository {
   };
 
   // 음식점 수정
-  updateStore = async (storeId, userId, name, address, category, status) => {
+  updateStore = async (userId, name, address, category, status) => {
     const updatedStore = await this.prisma.stores.update({
-      where: { storeId: +storeId },
+      where: { userId: +userId },
       data: {
-        userId: +userId,
         name,
         address,
-        category: category.toLowerCase(),
-        status: status.toLowerCase(),
+        category: category,
+        status: status,
       },
     });
 
@@ -67,14 +60,19 @@ export class StoresRepository {
   };
 
   // 음식점 삭제
-  deleteStore = async (storeId, password) => {
+  deleteStore = async (storeId) => {
     await this.prisma.stores.delete({
       where: {
         storeId: +storeId,
       },
-      password,
+    });
+  };
+
+  findStoreByUserId = async (userId) => {
+    const store = await this.prisma.stores.findFirst({
+      where: { userId: +userId },
     });
 
-    return { message: "음식점이 삭제되었습니다." };
+    return store;
   };
 }

@@ -20,9 +20,9 @@ router.get("/:storeId", storesController.findOneStore);
 router.post("/", authMiddleware, storesController.createStore);
 
 // 음식점 수정
-router.patch("/:storeId", authMiddleware, storesController.updateStore);
+router.patch("/", authMiddleware, storesController.updateStore);
 
 // 음식점 삭제
-router.delete("/:storeId", authMiddleware, storesController.deleteStore);
+router.delete("/", authMiddleware, storesController.deleteStore);
 
 export default router;

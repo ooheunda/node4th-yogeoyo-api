@@ -2,7 +2,9 @@ import {
   UnauthorizedError,
   NotFoundError,
   ValidationError,
+  ConflictError,
 } from "../utils/common.error.js";
+import bcrypt from "bcrypt";
 
 export class StoresService {
   constructor(storesRepository) {
@@ -18,55 +20,17 @@ export class StoresService {
   // 음식점 상세 조회
   findOneStore = async (storeId) => {
     const store = await this.storesRepository.findOneStore(storeId);
+    if (!store) throw new NotFoundError("존재하지 않는 음식점입니다.");
+
     return store;
   };
 
   // 음식점 생성
   createStore = async (userId, name, address, category, status) => {
-    const enumCategory = [
-      "chicken",
-      "pizza",
-      "burger",
-      "salad",
-      "korean_food",
-      "japanese_food",
-      "chinese_food",
-      "snack_bar",
-      "cafe",
-      "etc",
-    ];
-    const enumStatus = ["opened", "closed"];
+    const isExist = await this.storesRepository.findStoreByUserId(userId);
+    if (isExist)
+      throw new ConflictError("한 유저는 하나의 음식점만 운영할 수 있습니다.");
 
-    console.log(status);
-    if (!enumCategory.includes(category)) {
-      throw new ValidationError("유효하지 않은 카테고리입니다.");
-    }
-    if (!enumStatus.includes(status)) {
-      throw new ValidationError("유효하지 않은 상태입니다.");
-    }
-    // if (!status) {
-    //   return (createStore.status = "opened");
-    // }
-
-    const createdStore = await this.storesRepository.createStore({
-      userId,
-      name,
-      address,
-      category,
-      status,
-    });
-
-    return createdStore;
-  };
-
-  // 음식점 수정
-  updateStore = async (storeId, userId, name, address, category, status) => {
-    const store = await this.storesRepository.findOneStore(storeId);
-
-    // res는 컨트롤러에서 사용하는 것이기 때문에 throw로 변경
-    if (!store) {
-      throw new NotFoundError("존재하지 않는 음식점입니다.");
-    }
     const enumCategory = [
       "chicken",
       "pizza",
@@ -87,8 +51,8 @@ export class StoresService {
     if (!enumStatus.includes(status)) {
       throw new ValidationError("유효하지 않은 상태입니다.");
     }
-    return await this.storesRepository.updateStore(
-      storeId,
+
+    const createdStore = await this.storesRepository.createStore(
       userId,
       name,
       address,
@@ -96,21 +60,57 @@ export class StoresService {
       status
     );
 
-    // return store;
+    return createdStore;
+  };
+
+  // 음식점 수정
+  updateStore = async (userId, name, address, category, status) => {
+    const store = await this.storesRepository.findStoreByUserId(userId);
+
+    if (!store) throw new NotFoundError("존재하지 않는 음식점입니다.");
+
+    const enumCategory = [
+      "chicken",
+      "pizza",
+      "burger",
+      "salad",
+      "korean_food",
+      "japanese_food",
+      "chinese_food",
+      "snack_bar",
+      "cafe",
+      "etc",
+    ];
+    const enumStatus = ["opened", "closed"];
+
+    if (category && !enumCategory.includes(category))
+      throw new ValidationError("유효하지 않은 카테고리입니다.");
+
+    if (status && !enumStatus.includes(status))
+      throw new ValidationError("유효하지 않은 상태입니다.");
+
+    const updatedStore = await this.storesRepository.updateStore(
+      userId,
+      name,
+      address,
+      category,
+      status
+    );
+
+    return updatedStore;
   };
 
   // 음식점 삭제
-  deleteStore = async (storeId, userId) => {
-    const store = await this.storesRepository.findOneStore(storeId);
+  deleteStore = async (user, password) => {
+    const store = await this.storesRepository.findStoreByUserId(user.userId);
 
     if (!store) {
-      throw new NotFoundError("음식점 조회에 실패했습니다.");
+      throw new NotFoundError("존재하지 않는 음식점입니다.");
     }
 
-    if (store.userId !== userId) {
-      throw new UnauthorizedError("올바르지 않은 요청입니다.");
-    }
+    if (!(await bcrypt.compare(password, user.password)))
+      throw new UnauthorizedError("비밀번호가 올바르지 않습니다.");
 
-    await this.storesRepository.deleteStore(storeId);
+    await this.storesRepository.deleteStore(store.storeId);
   };
 }
