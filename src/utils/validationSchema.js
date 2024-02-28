@@ -27,3 +27,15 @@ export const userValidation = {
     role: joi.string().min(4).max(5).optional(),
   }),
 };
+
+export const menuValidation = {
+  menuSchema: joi.object({
+    price: joi.number(),
+    stock: joi.number(),
+    name: joi.string().min(1).max(20),
+    category: joi.string().min(1).max(20),
+    status: joi.string().min(1).max(20),
+
+  })
+
+}
