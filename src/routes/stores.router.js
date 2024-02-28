@@ -6,9 +6,9 @@ import { StoresRepository } from "../repositories/stores.repository.js";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
-const storesController = new StoresController(storesService);
-const storesService = new StoresService(storesRepository);
 const storesRepository = new StoresRepository(prisma);
+const storesService = new StoresService(storesRepository);
+const storesController = new StoresController(storesService);
 
 // 음식점 목록 조회
 router.get("/", storesController.findAllStores);
