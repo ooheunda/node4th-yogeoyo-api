@@ -35,11 +35,11 @@ export class OrdersRepository {
     return updatedOrders;
   };
 
-  getOrderByUserId = async (userId) => {
+  getOrdersByUserId = async (userId) => {
     return await this.prisma.orders.findMany({ where: { userId: +userId } });
   };
 
-  getOrderByStoreId = async (storeId) => {
+  getOrdersByStoreId = async (storeId) => {
     return await this.prisma.orders.findMany({ where: { storeId: +storeId } });
   };
 

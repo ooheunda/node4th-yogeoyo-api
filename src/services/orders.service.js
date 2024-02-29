@@ -101,8 +101,8 @@ export class OrdersService {
     };
   };
 
-  getOrderData = async (user) => {
-    const orderList = {};
+  getOrderList = async (user) => {
+    const orderList = [];
     if (user.role === "user") {
       orderList.push(
         await this.ordersRepository.getOrdersByUserId(user.userId)
